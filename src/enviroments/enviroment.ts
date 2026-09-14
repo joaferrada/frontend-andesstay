@@ -8,8 +8,8 @@ export const environment = {
     }
   },
   apiConfig: {
-    scopes: ['api://b32eb050-21b6-433a-809b-00b4f21cb5e2/access_as_user'], // O 'user.read' si usas Graph
-    uri: 'http://localhost:8080'
+    scopes: ['api://b32eb050-21b6-433a-809b-00b4f21cb5e2/access_as_user'],
+    uri: 'https://oa3syj8vc0.execute-api.us-east-1.amazonaws.com'
   }
 };
 

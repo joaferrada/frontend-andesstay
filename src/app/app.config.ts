@@ -60,9 +60,9 @@ export function MSALInterceptorConfigFactory() {
     new Map<string, Array<string>>();
 
   protectedResourceMap.set(
-  'http://localhost:8080/api/reservations',
-  environment.apiConfig.scopes
-    );
+  'https://oa3syj8vc0.execute-api.us-east-1.amazonaws.com/api/reservations',
+    environment.apiConfig.scopes
+  );
 
   return {
     interactionType: InteractionType.Redirect,
