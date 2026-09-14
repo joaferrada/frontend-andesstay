@@ -12,7 +12,7 @@ import { ReservationService } from '../services/reservation.service';
 
       <h2 style="color: #2b579a;">AndesStay - Mis Reservas</h2>
 
-      <!-- NUEVA RESERVA -->
+      <!-- NUEVA RESERVASSS -->
       <div style="
         border: 1px solid #ccc;
         padding: 20px;
