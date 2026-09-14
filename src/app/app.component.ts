@@ -113,7 +113,6 @@ export class AppComponent implements OnInit {
   }
 
   logout(): void {
-
     this.authService.logoutRedirect({
       postLogoutRedirectUri: 'https://joaferrada.github.io/frontend-andesstay/'
     });
