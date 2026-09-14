@@ -1,20 +1,26 @@
 import { Routes } from '@angular/router';
+
+import { HomeComponent } from './home.component';
 import { ReservationsComponent } from './reservations.component';
+
 import { MsalGuard } from '@azure/msal-angular';
 
 export const routes: Routes = [
-  { 
-    path: 'reservations', 
+
+  {
+    path: '',
+    component: HomeComponent
+  },
+
+  {
+    path: 'reservations',
     component: ReservationsComponent,
-    canActivate: [MsalGuard] 
+    canActivate: [MsalGuard]
   },
-  { 
-    path: '', 
-    redirectTo: '/reservations', 
-    pathMatch: 'full' 
-  },
-  { 
-    path: '**', 
-    redirectTo: '' 
+
+  {
+    path: '**',
+    redirectTo: ''
   }
+
 ];

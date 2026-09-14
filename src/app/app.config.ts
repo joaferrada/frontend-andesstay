@@ -1,5 +1,5 @@
 import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 import { routes } from './app.routes';
 
 import {
@@ -60,9 +60,9 @@ export function MSALInterceptorConfigFactory() {
     new Map<string, Array<string>>();
 
   protectedResourceMap.set(
-  'http://localhost:8080/api/reservations',
-  environment.apiConfig.scopes
-    );
+  'https://oa3syj8vc0.execute-api.us-east-1.amazonaws.com/api/reservations',
+    environment.apiConfig.scopes
+  );
 
   return {
     interactionType: InteractionType.Redirect,
@@ -90,7 +90,7 @@ export const appConfig: ApplicationConfig = {
 
   providers: [
 
-    provideRouter(routes),
+    provideRouter(routes, withHashLocation()),
 
     provideHttpClient(
       withInterceptorsFromDi()

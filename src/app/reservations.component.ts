@@ -12,7 +12,7 @@ import { ReservationService } from '../services/reservation.service';
 
       <h2 style="color: #2b579a;">AndesStay - Mis Reservas</h2>
 
-      <!-- NUEVA RESERVA -->
+      <!-- NUEVA RESERVAS -->
       <div style="
         border: 1px solid #ccc;
         padding: 20px;
@@ -20,7 +20,7 @@ import { ReservationService } from '../services/reservation.service';
         border-radius: 8px;
         background: #f8f9fa;
       ">
-        <h3>Registrar Nueva Reserva</h3>
+        <h3>Registrar Nueva Reservassssssss</h3>
 
         <div style="
           display: flex;
@@ -79,7 +79,7 @@ import { ReservationService } from '../services/reservation.service';
               cursor: pointer;
             "
           >
-            Guardar reserva
+            Guardarsss reserva
           </button>
 
         </div>

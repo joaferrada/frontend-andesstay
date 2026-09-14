@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
 import { AuthenticationResult } from '@azure/msal-browser';
 import { environment } from '../enviroments/enviroment';
@@ -11,7 +11,7 @@ import { environment } from '../enviroments/enviroment';
   imports: [CommonModule, RouterOutlet],
   template: `
     <div style="font-family: sans-serif; padding: 20px;">
-      
+
       <nav style="
         display: flex;
         justify-content: space-between;
@@ -60,7 +60,8 @@ export class AppComponent implements OnInit {
   loggedIn = false;
 
   constructor(
-    private authService: MsalService
+    private authService: MsalService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -70,19 +71,29 @@ export class AppComponent implements OnInit {
       .then((response: AuthenticationResult | null) => {
 
         if (response?.account) {
+
           this.authService.instance.setActiveAccount(response.account);
 
           console.log('LOGIN CORRECTO');
           console.log('Account:', response.account);
-          console.log('Access Token:', response.accessToken);
+
+          this.loggedIn = true;
+
+          // Después del login vamos a reservas
+          this.router.navigate(['/reservations']);
+
+          return;
         }
 
         this.checkAccount();
 
       })
       .catch((error) => {
+
         console.error('Error procesando redirect de MSAL:', error);
+
         this.checkAccount();
+
       });
   }
 
@@ -115,7 +126,8 @@ export class AppComponent implements OnInit {
   logout(): void {
 
     this.authService.logoutRedirect({
-      postLogoutRedirectUri: 'http://localhost:4200'
+      postLogoutRedirectUri:
+        'https://joaferrada.github.io/frontend-andesstay/'
     });
   }
 }
