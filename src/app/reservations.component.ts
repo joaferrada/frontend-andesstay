@@ -20,7 +20,7 @@ import { ReservationService } from '../services/reservation.service';
         border-radius: 8px;
         background: #f8f9fa;
       ">
-        <h3>Registrar Nueva Reservass</h3>
+        <h3>Registrar Nueva Reservas/h3>
 
         <div style="
           display: flex;
@@ -79,7 +79,7 @@ import { ReservationService } from '../services/reservation.service';
               cursor: pointer;
             "
           >
-            Guardars reserva
+            Guardarsss reserva
           </button>
 
         </div>
