@@ -4,7 +4,7 @@ export const environment = {
     auth: {
       clientId: 'b32eb050-21b6-433a-809b-00b4f21cb5e2',
       authority: 'https://login.microsoftonline.com/524de923-14d5-4e21-bbbf-525ca2e1ced7/', 
-      redirectUri: 'http://localhost:4200'
+      redirectUri: 'https://joaferrada.github.io/frontend-andesstay/'
     }
   },
   apiConfig: {
