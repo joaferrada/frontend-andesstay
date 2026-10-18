@@ -94,6 +94,14 @@ import { ReservationService } from '../services/reservation.service';
       <!-- LISTADO -->
       <h3>Mis reservas</h3>
 
+      <div style="margin-bottom: 12px;">
+        <label>Filtrar por estado: </label>
+        <select [(ngModel)]="filtroEstado" (change)="cargarReservas()" style="padding: 6px;">
+          <option value="">Todos</option>
+          <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+        </select>
+      </div>
+
       <p *ngIf="!cargado">Cargando reservas...</p>
 
       <p *ngIf="cargado && reservas.length === 0"
@@ -118,6 +126,7 @@ import { ReservationService } from '../services/reservation.service';
             <th style="padding: 10px;">Inicio</th>
             <th style="padding: 10px;">Fin</th>
             <th style="padding: 10px;">Precio</th>
+            <th style="padding: 10px;">Estado</th>
             <th style="padding: 10px;">Acciones</th>
           </tr>
         </thead>
@@ -150,6 +159,28 @@ import { ReservationService } from '../services/reservation.service';
             </td>
 
             <td style="padding: 10px;">
+              <span [style.background]="colorEstado(r.estado)"
+                    style="padding: 3px 8px; border-radius: 10px; color: white; font-size: 12px;">
+                {{ r.estado }}
+              </span>
+            </td>
+
+            <td style="padding: 10px;">
+              <button
+                *ngFor="let siguiente of siguientesEstados(r.estado)"
+                (click)="cambiarEstado(r.id, siguiente)"
+                style="
+                  padding: 7px 10px;
+                  margin: 0 4px 4px 0;
+                  background: #0078D4;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                "
+              >
+                {{ siguiente }}
+              </button>
               <button
                 (click)="eliminarReserva(r.id)"
                 style="
@@ -177,6 +208,26 @@ export class ReservationsComponent implements OnInit {
   reservas: any[] = [];
   cargado = false;
   mensaje = '';
+  filtroEstado = '';
+
+  // EP3: misma maquina de estados que ms-andesstay-reservations (el backend es quien la valida: 409)
+  readonly estados = ['CREADA', 'CONFIRMADA', 'CHECKIN_PENDIENTE', 'EN_ESTADIA', 'CHECKOUT', 'CANCELADA'];
+  private readonly transiciones: Record<string, string[]> = {
+    CREADA: ['CONFIRMADA', 'CANCELADA'],
+    CONFIRMADA: ['CHECKIN_PENDIENTE', 'CANCELADA'],
+    CHECKIN_PENDIENTE: ['EN_ESTADIA', 'CANCELADA'],
+    EN_ESTADIA: ['CHECKOUT'],
+    CHECKOUT: [],
+    CANCELADA: []
+  };
+  private readonly colores: Record<string, string> = {
+    CREADA: '#6c757d',
+    CONFIRMADA: '#0078D4',
+    CHECKIN_PENDIENTE: '#f0ad4e',
+    EN_ESTADIA: '#5cb85c',
+    CHECKOUT: '#343a40',
+    CANCELADA: '#d9534f'
+  };
 
   nuevaReserva = {
     alojamientoNombre: '',
@@ -196,7 +247,7 @@ export class ReservationsComponent implements OnInit {
   cargarReservas(): void {
     this.cargado = false;
 
-    this.reservationService.listarReservas().subscribe({
+    this.reservationService.listarReservas(this.filtroEstado || undefined).subscribe({
       next: (data) => {
         this.reservas = data;
         this.cargado = true;
@@ -204,6 +255,29 @@ export class ReservationsComponent implements OnInit {
       error: (err) => {
         console.error('Error al cargar reservas:', err);
         this.cargado = true;
+      }
+    });
+  }
+
+  siguientesEstados(estado: string): string[] {
+    return this.transiciones[estado] ?? [];
+  }
+
+  colorEstado(estado: string): string {
+    return this.colores[estado] ?? '#6c757d';
+  }
+
+  cambiarEstado(id: number, status: string): void {
+    this.reservationService.cambiarEstado(id, status).subscribe({
+      next: () => {
+        this.mensaje = `Reserva ${id} actualizada a ${status}. Notificaciones enviadas en segundo plano.`;
+        this.cargarReservas();
+      },
+      error: (err: any) => {
+        console.error('Error al cambiar estado:', err);
+        this.mensaje = err?.status === 403
+          ? 'No tienes permisos para cambiar el estado (requiere Admin u Operador).'
+          : (err?.error?.message ?? 'No fue posible cambiar el estado.');
       }
     });
   }

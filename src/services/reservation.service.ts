@@ -12,8 +12,13 @@ export class ReservationService {
 
   constructor(private http: HttpClient) {}
 
-  listarReservas(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  listarReservas(status?: string): Observable<any[]> {
+    const options = status ? { params: { status } } : {};
+    return this.http.get<any[]>(this.apiUrl, options);
+  }
+
+  cambiarEstado(id: number, status: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/status`, { status });
   }
 
   eliminarReserva(id: number): Observable<void> {
