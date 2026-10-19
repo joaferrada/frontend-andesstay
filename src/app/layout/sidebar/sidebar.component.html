@@ -1,0 +1,45 @@
+<nav id="app-sidebar" class="sidebar" [class.sidebar--open]="open()" aria-label="Menú principal">
+  <div class="sidebar__brand">
+    <svg class="sidebar__logo" viewBox="0 0 64 40" aria-hidden="true">
+      <path d="M2 38 L22 10 L32 22 L42 6 L62 38 Z" />
+    </svg>
+    <span>AndesStay</span>
+  </div>
+
+  <ul class="sidebar__list">
+    @for (item of items(); track item.label) {
+      <li>
+        @if (item.disabled || !item.route) {
+          <span class="sidebar__link sidebar__link--disabled" aria-disabled="true">
+            <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ $implicit: item.icon }" />
+            <span class="sidebar__label">{{ item.label }}</span>
+            <span class="sidebar__soon">Próxima etapa</span>
+          </span>
+        } @else {
+          <a
+            class="sidebar__link"
+            [routerLink]="item.route"
+            routerLinkActive="sidebar__link--active"
+            ariaCurrentWhenActive="page"
+            (click)="navigate.emit()"
+          >
+            <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ $implicit: item.icon }" />
+            <span class="sidebar__label">{{ item.label }}</span>
+          </a>
+        }
+      </li>
+    }
+  </ul>
+</nav>
+
+<ng-template #icon let-name>
+  <svg class="sidebar__icon" viewBox="0 0 24 24" aria-hidden="true">
+    @switch (name) {
+      @case ('home') { <svg:path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z" /> }
+      @case ('calendar') { <svg:path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" /> }
+      @case ('cabin') { <svg:path d="M3 12 12 4l9 8M5 10v10h14V10M10 20v-5h4v5" /> }
+      @case ('chart') { <svg:path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /> }
+      @case ('shield') { <svg:path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /> }
+    }
+  </svg>
+</ng-template>

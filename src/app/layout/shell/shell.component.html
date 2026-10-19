@@ -1,0 +1,15 @@
+<div class="shell">
+  <app-sidebar [open]="sidebarOpen()" (navigate)="closeSidebar()" />
+
+  @if (sidebarOpen()) {
+    <div class="shell__overlay" aria-hidden="true" (click)="closeSidebar()"></div>
+  }
+
+  <div class="shell__main">
+    <app-header [menuOpen]="sidebarOpen()" (toggleMenu)="toggleSidebar()" />
+
+    <main class="shell__content" id="contenido">
+      <router-outlet />
+    </main>
+  </div>
+</div>

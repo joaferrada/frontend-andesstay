@@ -1,0 +1,96 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  min-height: $header-height;
+  padding: $space-2 $space-5;
+  background: $color-surface;
+  border-bottom: 1px solid $color-border;
+
+  @include small {
+    padding: $space-2 $space-4;
+    gap: $space-2;
+  }
+
+  &__menu {
+    display: none;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    @include mobile {
+      display: inline-flex;
+    }
+  }
+
+  &__user {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $space-2 $space-3;
+  }
+
+  &__identity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  &__name {
+    font-weight: $font-weight-bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  &__email {
+    font-size: 0.8125rem;
+    color: $color-text-muted;
+
+    @include small {
+      display: none;
+    }
+  }
+
+  &__roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.chip {
+  padding: 2px $space-3;
+  border-radius: $radius-pill;
+  background: $color-accent-soft;
+  color: $color-accent;
+  font-size: 0.8125rem;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+
+  &--muted {
+    background: #eceff1;
+    color: $color-text-muted;
+  }
+}
