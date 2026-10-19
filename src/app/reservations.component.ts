@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ReservationService } from '../services/reservation.service';
-import { AuthRoleService } from '../services/auth-role.service';
+import { ReservationService } from './core/services/reservation.service';
+import { AuthRoleService } from './core/auth/auth-role.service';
+import { UserRole } from './core/models/user-role.enum';
 
 @Component({
   selector: 'app-reservations',
@@ -36,7 +37,7 @@ import { AuthRoleService } from '../services/auth-role.service';
             <input
               type="text"
               [(ngModel)]="nuevaReserva.alojamientoNombre"
-              placeholder="Ej: Hotel Valparaíso"
+              placeholder="Ej: Hotel ValparaÃƒÂ­so"
               style="padding: 9px;"
             >
           </div>
@@ -231,15 +232,15 @@ export class ReservationsComponent implements OnInit {
 
   // Permisos por rol (Auditor solo lista y filtra)
   get puedeCrear(): boolean {
-    return this.authRoles.hasAnyRole(['Admin', 'Operador_Dominio', 'Cliente_Dominio']);
+    return this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Operador, UserRole.Cliente]);
   }
 
   get puedeCambiarEstado(): boolean {
-    return this.authRoles.hasAnyRole(['Admin', 'Operador_Dominio']);
+    return this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Operador]);
   }
 
   get puedeEliminar(): boolean {
-    return this.authRoles.hasRole('Admin');
+    return this.authRoles.hasRole(UserRole.Admin);
   }
 
   get reservasFiltradas(): any[] {
@@ -297,7 +298,7 @@ export class ReservationsComponent implements OnInit {
       precioTotal: this.nuevaReserva.precioTotal
     };
 
-    this.reservationService.crearReserva(payload).subscribe({
+    this.reservationService.crearReserva(payload as any).subscribe({
       next: () => {
 
         this.mostrarExito('Reserva creada correctamente.');
@@ -324,7 +325,7 @@ export class ReservationsComponent implements OnInit {
     const estadoAnterior = reserva.estado;
     reserva.estado = estado;
 
-    this.reservationService.cambiarEstado(reserva.id, estado).subscribe({
+    this.reservationService.cambiarEstado(reserva.id, estado as any).subscribe({
       next: () => {
         this.mostrarExito(`Estado de la reserva ${reserva.id} actualizado a ${estado}.`);
       },
@@ -338,7 +339,7 @@ export class ReservationsComponent implements OnInit {
 
   eliminarReserva(id: number): void {
 
-    if (!confirm('¿Seguro que deseas eliminar esta reserva?')) {
+    if (!confirm('Ã‚Â¿Seguro que deseas eliminar esta reserva?')) {
       return;
     }
 
@@ -363,7 +364,7 @@ export class ReservationsComponent implements OnInit {
     this.esError = true;
     this.mensaje =
       err instanceof HttpErrorResponse && err.status === 403
-        ? 'No tienes permisos para esta acción.'
+        ? 'No tienes permisos para esta acciÃƒÂ³n.'
         : porDefecto;
   }
 }
