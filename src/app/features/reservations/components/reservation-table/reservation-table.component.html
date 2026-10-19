@@ -19,7 +19,19 @@
       @for (r of reservations(); track r.id) {
         <tr>
           <td>#{{ r.id }}</td>
-          <td>{{ r.clienteUsername || '—' }}</td>
+          <td>
+            @if (r.huespedNombre || r.huespedEmail) {
+              <span class="guest">
+                <span class="strong">{{ r.huespedNombre || '—' }}</span>
+                @if (r.huespedEmail) {
+                  <span class="guest__email">{{ r.huespedEmail }}</span>
+                }
+              </span>
+            } @else {
+              <!-- Reservas creadas antes de registrar los datos del huésped -->
+              {{ r.clienteUsername || '—' }}
+            }
+          </td>
           <td class="strong">{{ r.alojamientoNombre }}</td>
           <td class="nowrap">{{ r.fechaInicio | date: 'dd-MM-yyyy' }}</td>
           <td class="nowrap">{{ r.fechaFin | date: 'dd-MM-yyyy' }}</td>
