@@ -8,6 +8,7 @@ import {
   Validators
 } from '@angular/forms';
 import { ReservationService } from '../../../../core/services/reservation.service';
+import { AuthRoleService } from '../../../../core/auth/auth-role.service';
 import { Reservation } from '../../../../core/models/reservation.model';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { friendlyHttpMessage } from '../../../../core/interceptors/http-error.interceptor';
@@ -29,6 +30,11 @@ const dateRange: ValidatorFn = (group: AbstractControl): ValidationErrors | null
   return fin > inicio ? null : { dateRange: true };
 };
 
+// Validators.email acepta "a@b"; se exige además un dominio con punto
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type FormField = 'alojamientoNombre' | 'fechaInicio' | 'fechaFin' | 'precioTotal' | 'huespedNombre' | 'huespedEmail';
+
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
@@ -40,6 +46,10 @@ export class ReservationFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly reservationService = inject(ReservationService);
   private readonly toast = inject(ToastService);
+  readonly authRoles = inject(AuthRoleService);
+
+  /** Admin/Operador ingresan los datos del huésped; el Cliente reserva a su nombre. */
+  readonly registersGuest = this.authRoles.canRegisterGuest;
 
   /** Reserva a editar; si es null el formulario crea una nueva. */
   readonly reservation = input<Reservation | null>(null);
@@ -56,24 +66,42 @@ export class ReservationFormComponent implements OnInit {
       alojamientoNombre: ['', [Validators.required, Validators.maxLength(120)]],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required],
-      precioTotal: [null as number | null, [Validators.required, positiveNumber]]
+      precioTotal: [null as number | null, [Validators.required, positiveNumber]],
+      huespedNombre: [''],
+      huespedEmail: ['']
     },
     { validators: dateRange }
   );
 
   ngOnInit(): void {
+    // Los campos del huésped solo son obligatorios cuando se muestran
+    if (this.registersGuest()) {
+      const { huespedNombre, huespedEmail } = this.form.controls;
+      huespedNombre.setValidators([Validators.required, Validators.maxLength(120)]);
+      huespedEmail.setValidators([
+        Validators.required,
+        Validators.email,
+        Validators.pattern(EMAIL_PATTERN),
+        Validators.maxLength(254)
+      ]);
+      huespedNombre.updateValueAndValidity();
+      huespedEmail.updateValueAndValidity();
+    }
+
     const r = this.reservation();
     if (r) {
       this.form.setValue({
         alojamientoNombre: r.alojamientoNombre ?? '',
         fechaInicio: (r.fechaInicio ?? '').slice(0, 10),
         fechaFin: (r.fechaFin ?? '').slice(0, 10),
-        precioTotal: r.precioTotal ?? null
+        precioTotal: r.precioTotal ?? null,
+        huespedNombre: r.huespedNombre ?? '',
+        huespedEmail: r.huespedEmail ?? ''
       });
     }
   }
 
-  showError(field: 'alojamientoNombre' | 'fechaInicio' | 'fechaFin' | 'precioTotal'): boolean {
+  showError(field: FormField): boolean {
     const control = this.form.controls[field];
     return control.invalid && (control.touched || this.submitted());
   }
@@ -96,7 +124,10 @@ export class ReservationFormComponent implements OnInit {
       alojamientoNombre: value.alojamientoNombre.trim(),
       fechaInicio: value.fechaInicio,
       fechaFin: value.fechaFin,
-      precioTotal: Number(value.precioTotal)
+      precioTotal: Number(value.precioTotal),
+      // Cliente: sus datos del token. Admin/Operador: los ingresados en el formulario.
+      huespedNombre: this.registersGuest() ? value.huespedNombre.trim() : this.authRoles.userName(),
+      huespedEmail: this.registersGuest() ? value.huespedEmail.trim() : this.authRoles.userEmail()
     };
     const editing = this.reservation();
     this.saving.set(true);
