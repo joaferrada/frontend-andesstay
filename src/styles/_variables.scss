@@ -1,0 +1,69 @@
+// Tokens de diseño AndesStay: montaña, bosque y tierra.
+
+// Colores base
+$color-primary: #2f5d50;        // verde bosque
+$color-primary-dark: #22463c;
+$color-primary-soft: #e3eeea;
+$color-accent: #9a5b34;         // tierra / terracota
+$color-accent-soft: #f3e6dc;
+$color-sand: #f6f2ea;           // fondo arena
+$color-surface: #ffffff;
+$color-border: #ddd6c8;
+$color-text: #1f2a2e;           // pizarra oscura
+$color-text-muted: #56616a;
+$color-focus: #1f6feb;
+
+// Feedback
+$color-success: #1e5b3a;
+$color-success-bg: #dcefe3;
+$color-warning: #7a4e0b;
+$color-warning-bg: #fbefd5;
+$color-danger: #9b1c1c;
+$color-danger-dark: #7f1717;
+$color-danger-bg: #fbe3e1;
+$color-info: #1e3a8a;
+$color-info-bg: #dbeafe;
+
+// Estados de reserva (texto / fondo)
+$status-colors: (
+  'CREADA': (#334155, #e2e8f0),
+  'CONFIRMADA': (#1e5b3a, #dcefe3),
+  'CHECKIN_PENDIENTE': (#7a4e0b, #fbefd5),
+  'EN_ESTADIA': (#1e3a8a, #dbeafe),
+  'CHECKOUT': (#4b2e83, #ede7f6),
+  'CANCELADA': (#9b1c1c, #fbe3e1)
+);
+
+// Tipografía
+$font-family: 'Nunito Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.5rem;
+$font-size-xxl: 2rem;
+$font-weight-regular: 400;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Espaciado
+$space-1: 0.25rem;
+$space-2: 0.5rem;
+$space-3: 0.75rem;
+$space-4: 1rem;
+$space-5: 1.5rem;
+$space-6: 2rem;
+$space-7: 3rem;
+
+// Bordes y sombras
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 16px;
+$radius-pill: 999px;
+$shadow-sm: 0 1px 2px rgba(31, 42, 46, 0.08);
+$shadow-md: 0 4px 16px rgba(31, 42, 46, 0.12);
+
+// Layout
+$sidebar-width: 248px;
+$header-height: 64px;
+$breakpoint-md: 900px;
+$breakpoint-sm: 600px;
