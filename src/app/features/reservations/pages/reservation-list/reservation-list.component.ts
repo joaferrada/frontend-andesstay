@@ -137,9 +137,9 @@ export class ReservationListComponent implements OnInit {
     this.busyId.set(reservation.id);
 
     this.reservationService.cambiarEstado(reservation.id, to).subscribe({
-      next: () => {
+      next: updated => {
         this.reservations.update(list =>
-          list.map(r => (r.id === reservation.id ? { ...r, estado: to } : r))
+          list.map(r => (r.id === reservation.id ? { ...r, ...updated, estado: updated?.estado ?? to } : r))
         );
         this.busyId.set(null);
         this.toast.success(`Reserva #${reservation.id} actualizada.`);
