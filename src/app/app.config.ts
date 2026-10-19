@@ -5,8 +5,10 @@ import { routes } from './app.routes';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withInterceptors,
   HTTP_INTERCEPTORS
 } from '@angular/common/http';
+import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 
 import {
   InteractionType,
@@ -93,7 +95,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
 
     provideHttpClient(
-      withInterceptorsFromDi()
+      withInterceptorsFromDi(),
+      withInterceptors([httpErrorInterceptor])
     ),
 
     {
