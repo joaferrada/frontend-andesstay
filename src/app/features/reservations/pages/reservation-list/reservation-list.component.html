@@ -1,0 +1,94 @@
+<section class="page" aria-labelledby="reservations-title">
+  <header class="page-header">
+    <div>
+      <h1 id="reservations-title">Reservas</h1>
+      <p>
+        @if (readOnly()) {
+          Consulta de reservas en modo solo lectura.
+        } @else {
+          Gestiona las reservas de la red AndesStay.
+        }
+      </p>
+    </div>
+
+    @if (canCreate() && !showForm()) {
+      <button type="button" class="btn btn-primary" (click)="showForm.set(true)">
+        Nueva reserva
+      </button>
+    }
+  </header>
+
+  @if (canCreate() && showForm()) {
+    <app-reservation-form (created)="onCreated()" (dismissed)="showForm.set(false)" />
+  }
+
+  <div class="toolbar">
+    <div class="form-field">
+      <label for="status-filter">Filtrar por estado</label>
+      <select
+        id="status-filter"
+        class="form-control"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+      >
+        <option value="">Todos los estados</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | statusLabel }}</option>
+        }
+      </select>
+    </div>
+
+    @if (!loading() && !error()) {
+      <p class="toolbar__count" aria-live="polite">
+        {{ filtered().length }} de {{ reservations().length }} reservas
+      </p>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner label="Cargando reservas..." />
+  } @else if (error()) {
+    <div class="alert alert-error list__error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="load()">Reintentar</button>
+    </div>
+  } @else if (reservations().length === 0) {
+    <div class="card">
+      <app-empty-state
+        title="No hay reservas registradas"
+        [message]="canCreate() ? 'Crea la primera reserva con el botón «Nueva reserva».' : ''"
+      />
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="card">
+      <app-empty-state
+        title="Sin resultados"
+        [message]="'No hay reservas con estado «' + (statusFilter() | statusLabel) + '».'"
+      >
+        <button type="button" class="btn btn-secondary btn-sm" (click)="statusFilter.set('')">
+          Quitar filtro
+        </button>
+      </app-empty-state>
+    </div>
+  } @else {
+    <app-reservation-table
+      [reservations]="filtered()"
+      [canChangeStatus]="canChangeStatus()"
+      [canDelete]="canDelete()"
+      [busyId]="busyId()"
+      (statusChange)="onStatusChange($event)"
+      (remove)="onRemove($event)"
+    />
+  }
+</section>
+
+<app-confirm-dialog
+  [open]="pending() !== null"
+  [title]="dialogTitle()"
+  [message]="dialogMessage()"
+  [confirmText]="pending()?.kind === 'delete' ? 'Eliminar' : 'Cancelar reserva'"
+  cancelText="Volver"
+  [danger]="true"
+  (confirmed)="confirmPending()"
+  (cancelled)="pending.set(null)"
+/>
