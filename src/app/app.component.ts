@@ -4,7 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
 import { AuthenticationResult } from '@azure/msal-browser';
 import { environment } from '../enviroments/enviroment';
-import { AuthRoleService } from '../services/auth-role.service';
+import { AuthRoleService } from './core/auth/auth-role.service';
 
 @Component({
   selector: 'app-root',

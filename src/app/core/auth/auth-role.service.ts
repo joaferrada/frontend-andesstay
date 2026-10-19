@@ -1,9 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { MsalService } from '@azure/msal-angular';
 import { AccountInfo } from '@azure/msal-browser';
-
-// App roles definidos en Entra ID (llegan en el claim "roles" del token)
-export type AppRole = 'Admin' | 'Operador_Dominio' | 'Cliente_Dominio' | 'Auditor';
+import { environment } from '../../../enviroments/enviroment';
+import { UserRole } from '../models/user-role.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +10,8 @@ export type AppRole = 'Admin' | 'Operador_Dominio' | 'Cliente_Dominio' | 'Audito
 export class AuthRoleService {
 
   private readonly account = signal<AccountInfo | null>(null);
+
+  readonly isAuthenticated = computed(() => this.account() !== null);
 
   readonly roles = computed<string[]>(() => {
     const claims = this.account()?.idTokenClaims as { roles?: unknown } | undefined;
@@ -21,6 +22,8 @@ export class AuthRoleService {
     const acc = this.account();
     return acc?.name || acc?.username || '';
   });
+
+  readonly userEmail = computed<string>(() => this.account()?.username ?? '');
 
   constructor(private msalService: MsalService) {
     this.refresh();
@@ -42,11 +45,23 @@ export class AuthRoleService {
     this.account.set(active);
   }
 
-  hasRole(role: AppRole): boolean {
+  hasRole(role: UserRole): boolean {
     return this.roles().includes(role);
   }
 
-  hasAnyRole(roles: AppRole[]): boolean {
+  hasAnyRole(roles: UserRole[]): boolean {
     return roles.some(r => this.hasRole(r));
+  }
+
+  login(): void {
+    this.msalService.loginRedirect({
+      scopes: environment.apiConfig.scopes
+    });
+  }
+
+  logout(): void {
+    this.msalService.logoutRedirect({
+      postLogoutRedirectUri: environment.msalConfig.auth.redirectUri
+    });
   }
 }
