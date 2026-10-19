@@ -21,6 +21,8 @@ export interface StatusChangeEvent {
 export class ReservationTableComponent {
   readonly reservations = input.required<Reservation[]>();
   readonly canEdit = input(false);
+  /** Admin y Auditor: enlace a la trazabilidad de la reserva. */
+  readonly canViewAudit = input(false);
   readonly canChangeStatus = input(false);
   readonly canDelete = input(false);
   /** Id de la reserva con una operación en curso, para deshabilitar sus botones. */
@@ -30,6 +32,6 @@ export class ReservationTableComponent {
   readonly remove = output<Reservation>();
 
   hasActions(): boolean {
-    return this.canEdit() || this.canChangeStatus() || this.canDelete();
+    return this.canEdit() || this.canChangeStatus() || this.canDelete() || this.canViewAudit();
   }
 }

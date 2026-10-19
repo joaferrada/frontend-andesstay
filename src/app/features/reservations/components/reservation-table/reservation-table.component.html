@@ -40,6 +40,11 @@
           @if (hasActions()) {
             <td>
               <div class="row-actions">
+                @if (canViewAudit()) {
+                  <a class="btn btn-secondary btn-sm" routerLink="/audit" [queryParams]="{ reservationId: r.id }">
+                    Ver trazabilidad<span class="visually-hidden"> de la reserva #{{ r.id }}</span>
+                  </a>
+                }
                 @if (canEdit()) {
                   <a class="btn btn-secondary btn-sm" [routerLink]="['/reservations', r.id, 'edit']">
                     Editar<span class="visually-hidden"> reserva #{{ r.id }}</span>
