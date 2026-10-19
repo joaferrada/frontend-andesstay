@@ -70,21 +70,38 @@ Cada componente tiene sus archivos `.ts`, `.html` y `.scss` en su propia carpeta
 | `/login`        | sesión (si ya hay, redirige) | público                        |
 | `/dashboard`    | `MsalGuard`, `roleGuard`   | cualquier usuario autenticado    |
 | `/reservations` | `MsalGuard`, `roleGuard`   | Admin, Operador_Dominio, Cliente_Dominio, Auditor |
+| `/reservations/new` | `MsalGuard`, `roleGuard` | Admin, Operador_Dominio, Cliente_Dominio |
+| `/reservations/:id/edit` | `MsalGuard`, `roleGuard` | Admin, Operador_Dominio, Cliente_Dominio |
 
 `roleGuard` lee `data.roles` de la ruta. Si el usuario no tiene ninguno de esos roles, vuelve al panel con un aviso.
 
 ## Roles y permisos
 
-| Rol (Entra ID)     | Perfil       | Panel                               | Listar y filtrar | Crear | Cambiar estado | Eliminar |
-|--------------------|--------------|-------------------------------------|:---:|:---:|:---:|:---:|
-| `Admin`            | Administrador | Total de reservas y conteo por estado | ✔ | ✔ | ✔ | ✔ |
-| `Operador_Dominio` | Recepción    | Llegadas y salidas de hoy           | ✔ | — | ✔ | ✔ |
-| `Cliente_Dominio`  | Huésped      | Mis reservas y su estado            | ✔ | ✔ | — | — |
+La matriz está definida en un solo lugar: `RESERVATION_PERMISSIONS` en `core/auth/auth-role.service.ts`, expuesta como `canCreate`, `canEdit`, `canChangeStatus` y `canDelete`. La usan las plantillas y `app.routes.ts`.
 
-`GET /api/reservations` ya devuelve solo las reservas del huésped del token (Admin y Operador ven todas), por lo que el frontend no filtra por usuario.
-| `Auditor`          | Auditor      | Últimas reservas (solo lectura)     | ✔ | — | — | — |
+| Rol (Entra ID)     | Perfil        | Panel                                 | Ver / filtrar | Crear | Editar | Cambiar estado | Eliminar |
+|--------------------|---------------|---------------------------------------|:---:|:---:|:---:|:---:|:---:|
+| `Admin`            | Administrador | Total de reservas y conteo por estado | ✔ | ✔ | ✔ | ✔ | ✔ |
+| `Operador_Dominio` | Recepción     | Llegadas y salidas de hoy             | ✔ | ✔ | ✔ | ✔ | — |
+| `Cliente_Dominio`  | Huésped       | Mis reservas y su estado              | ✔ (las suyas) | ✔ | ✔ (las suyas) | — | — |
+| `Auditor`          | Auditor       | Últimas reservas (solo lectura)       | ✔ | — | — | — | — |
 
-La interfaz oculta las acciones no permitidas, pero la autorización real la aplica el backend. Si responde 403 se muestra "No tienes permisos para esta acción".
+`GET /api/reservations` ya devuelve solo las reservas del huésped del token (Admin, Operador y Auditor ven todas), por lo que el frontend no filtra por usuario. La interfaz oculta las acciones no permitidas, pero la autorización real la aplica el backend.
+
+## API de reservas
+
+Todas las llamadas van al BFF (`environment.apiConfig.uri`) desde `core/services/reservation.service.ts`:
+
+| Método y ruta                         | Uso                     | Body |
+|---------------------------------------|-------------------------|------|
+| `GET /api/reservations[?status=]`     | Listar                  | — |
+| `GET /api/reservations/{id}`          | Detalle (404 → "no encontrada") | — |
+| `POST /api/reservations`              | Crear (parte en `CREADA`) | `{ alojamientoNombre, fechaInicio, fechaFin, precioTotal }` |
+| `PUT /api/reservations/{id}`          | Editar (no cambia el estado) | mismo body |
+| `PUT /api/reservations/{id}/status`   | Cambiar estado          | `{ "status": "<ESTADO>" }` |
+| `DELETE /api/reservations/{id}`       | Eliminar (204)          | — |
+
+Fechas en formato `yyyy-MM-dd`. Los errores llegan como `{ timestamp, status, error, message }`: se muestra `message` si existe y, si no, un texto genérico por código. Un 401 inicia el login de MSAL; un 403 solo muestra el aviso y mantiene la sesión.
 
 ## Estados de reserva
 
@@ -97,7 +114,7 @@ La interfaz oculta las acciones no permitidas, pero la autorización real la apl
 | `CHECKOUT`          | Check-out realizado | —                                |
 | `CANCELADA`         | Cancelada           | —                                |
 
-Las transiciones están definidas en `core/models/reservation-status.enum.ts` y se envían al backend con `PUT /api/reservations/{id}/status` y body `{ "status": "<ESTADO>" }`. Si el backend rechaza el cambio (400, 404 o 409), se muestra el `message` de su respuesta.
+Las transiciones están definidas en `core/models/reservation-status.enum.ts` y coinciden con el backend. Si un cambio es rechazado con 409, se muestra el `message` del backend (incluye las transiciones posibles) y se recarga el listado.
 
 ## Próximas etapas
 
