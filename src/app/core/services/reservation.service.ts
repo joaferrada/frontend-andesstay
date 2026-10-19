@@ -54,11 +54,18 @@ export class ReservationService {
 
   /** Solo los campos que acepta el backend; fechas en formato yyyy-MM-dd. */
   private toBody(reserva: NewReservation): NewReservation {
-    return {
+    const body: NewReservation = {
       alojamientoNombre: reserva.alojamientoNombre,
       fechaInicio: reserva.fechaInicio.slice(0, 10),
       fechaFin: reserva.fechaFin.slice(0, 10),
       precioTotal: reserva.precioTotal
     };
+    if (reserva.huespedNombre) {
+      body.huespedNombre = reserva.huespedNombre;
+    }
+    if (reserva.huespedEmail) {
+      body.huespedEmail = reserva.huespedEmail;
+    }
+    return body;
   }
 }

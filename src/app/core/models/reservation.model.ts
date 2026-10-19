@@ -3,6 +3,8 @@ import { ReservationStatus } from './reservation-status.enum';
 export interface Reservation {
   id: number;
   clienteUsername?: string;
+  huespedNombre?: string;
+  huespedEmail?: string;
   alojamientoNombre: string;
   fechaInicio: string;
   fechaFin: string;
@@ -15,4 +17,6 @@ export interface NewReservation {
   fechaInicio: string;
   fechaFin: string;
   precioTotal: number;
+  huespedNombre?: string;
+  huespedEmail?: string;
 }
