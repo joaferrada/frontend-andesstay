@@ -1,0 +1,93 @@
+<form class="card form" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="form-title">
+  <h2 id="form-title">Nueva reserva</h2>
+
+  @if (serverError()) {
+    <div class="alert alert-error" role="alert">{{ serverError() }}</div>
+  }
+
+  <div class="form__grid">
+    <div class="form-field form__wide">
+      <label for="alojamiento">Alojamiento</label>
+      <input
+        id="alojamiento"
+        type="text"
+        class="form-control"
+        formControlName="alojamientoNombre"
+        placeholder="Ej: Lodge Torres del Paine"
+        autocomplete="off"
+        [class.is-invalid]="showError('alojamientoNombre')"
+        [attr.aria-invalid]="showError('alojamientoNombre')"
+        aria-describedby="alojamiento-error"
+      >
+      @if (showError('alojamientoNombre')) {
+        <p id="alojamiento-error" class="field-error">
+          {{ form.controls.alojamientoNombre.hasError('maxlength') ? 'Máximo 120 caracteres.' : 'Indica el alojamiento.' }}
+        </p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="fecha-inicio">Fecha de llegada</label>
+      <input
+        id="fecha-inicio"
+        type="date"
+        class="form-control"
+        formControlName="fechaInicio"
+        [class.is-invalid]="showError('fechaInicio')"
+        [attr.aria-invalid]="showError('fechaInicio')"
+        aria-describedby="fecha-inicio-error"
+      >
+      @if (showError('fechaInicio')) {
+        <p id="fecha-inicio-error" class="field-error">Indica la fecha de llegada.</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="fecha-fin">Fecha de salida</label>
+      <input
+        id="fecha-fin"
+        type="date"
+        class="form-control"
+        formControlName="fechaFin"
+        [min]="form.controls.fechaInicio.value || null"
+        [class.is-invalid]="showError('fechaFin') || showDateRangeError"
+        [attr.aria-invalid]="showError('fechaFin') || showDateRangeError"
+        aria-describedby="fecha-fin-error"
+      >
+      @if (showError('fechaFin')) {
+        <p id="fecha-fin-error" class="field-error">Indica la fecha de salida.</p>
+      } @else if (showDateRangeError) {
+        <p id="fecha-fin-error" class="field-error">La salida debe ser posterior a la llegada.</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="precio">Precio total (CLP)</label>
+      <input
+        id="precio"
+        type="number"
+        class="form-control"
+        formControlName="precioTotal"
+        min="1"
+        step="1"
+        inputmode="numeric"
+        placeholder="Ej: 120000"
+        [class.is-invalid]="showError('precioTotal')"
+        [attr.aria-invalid]="showError('precioTotal')"
+        aria-describedby="precio-error"
+      >
+      @if (showError('precioTotal')) {
+        <p id="precio-error" class="field-error">El precio debe ser mayor a 0.</p>
+      }
+    </div>
+  </div>
+
+  <div class="form__actions">
+    <button type="button" class="btn btn-secondary" (click)="dismissed.emit()" [disabled]="saving()">
+      Cancelar
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Guardando...' : 'Guardar reserva' }}
+    </button>
+  </div>
+</form>

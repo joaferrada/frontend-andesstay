@@ -1,0 +1,55 @@
+<div class="table-wrapper">
+  <table class="table">
+    <caption class="visually-hidden">Listado de reservas</caption>
+    <thead>
+      <tr>
+        <th scope="col">N°</th>
+        <th scope="col">Huésped</th>
+        <th scope="col">Alojamiento</th>
+        <th scope="col">Llegada</th>
+        <th scope="col">Salida</th>
+        <th scope="col" class="num">Total</th>
+        <th scope="col">Estado</th>
+        @if (canChangeStatus() || canDelete()) {
+          <th scope="col">Acciones</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of reservations(); track r.id) {
+        <tr>
+          <td>#{{ r.id }}</td>
+          <td>{{ r.clienteUsername || '—' }}</td>
+          <td class="strong">{{ r.alojamientoNombre }}</td>
+          <td class="nowrap">{{ r.fechaInicio | date: 'dd-MM-yyyy' }}</td>
+          <td class="nowrap">{{ r.fechaFin | date: 'dd-MM-yyyy' }}</td>
+          <td class="num nowrap">{{ r.precioTotal | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</td>
+          <td><app-status-badge [status]="r.estado" /></td>
+          @if (canChangeStatus() || canDelete()) {
+            <td>
+              <div class="row-actions">
+                @if (canChangeStatus()) {
+                  <app-status-actions
+                    [status]="r.estado"
+                    [disabled]="busyId() === r.id"
+                    (transition)="statusChange.emit({ reservation: r, to: $event })"
+                  />
+                }
+                @if (canDelete()) {
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    [disabled]="busyId() === r.id"
+                    (click)="remove.emit(r)"
+                  >
+                    Eliminar
+                  </button>
+                }
+              </div>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

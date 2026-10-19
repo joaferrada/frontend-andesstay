@@ -1,0 +1,22 @@
+@use 'styles/variables' as *;
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-1;
+
+  &__none {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+  }
+}
+
+.btn-cancel {
+  background: $color-surface;
+  color: $color-danger;
+  border-color: rgba($color-danger, 0.4);
+
+  &:hover:not(:disabled) {
+    background: $color-danger-bg;
+  }
+}

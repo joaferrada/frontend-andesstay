@@ -1,0 +1,16 @@
+<div class="actions">
+  @for (t of transitions(); track t.to) {
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class.btn-secondary]="!isCancel(t.to)"
+      [class.btn-cancel]="isCancel(t.to)"
+      [disabled]="disabled()"
+      (click)="transition.emit(t.to)"
+    >
+      {{ t.action }}
+    </button>
+  } @empty {
+    <span class="actions__none">Sin cambios de estado</span>
+  }
+</div>

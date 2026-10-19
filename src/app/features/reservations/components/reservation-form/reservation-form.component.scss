@@ -1,0 +1,33 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  h2 {
+    margin: 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: $space-4;
+
+    @include mobile {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  &__wide {
+    grid-column: 1 / -1;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+}
