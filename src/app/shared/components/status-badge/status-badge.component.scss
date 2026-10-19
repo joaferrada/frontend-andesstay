@@ -1,0 +1,30 @@
+@use 'sass:list';
+@use 'sass:string';
+@use 'styles/variables' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 2px $space-3;
+  border-radius: $radius-pill;
+  font-size: 0.8125rem;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+  color: $color-text-muted;
+  background: #eceff1;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+@each $status, $colors in $status-colors {
+  .badge--#{string.to-lower-case($status)} {
+    color: list.nth($colors, 1);
+    background: list.nth($colors, 2);
+  }
+}
