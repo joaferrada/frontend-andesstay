@@ -1,0 +1,113 @@
+<section class="page" aria-labelledby="reports-title">
+  <header class="page-header">
+    <div>
+      <h1 id="reports-title">Reportería</h1>
+      <p>Indicadores de reservas y ocupación de la red.</p>
+    </div>
+    <div class="form-field">
+      <label for="report-range">Rango</label>
+      <select id="report-range" class="form-control" [ngModel]="range()" (ngModelChange)="setRange($event)">
+        @for (r of ranges; track r.value) {
+          <option [value]="r.value">{{ r.label }}</option>
+        }
+      </select>
+    </div>
+  </header>
+
+  @if (kpisLoading()) {
+    <app-loading-spinner label="Cargando indicadores..." />
+  } @else if (kpisError()) {
+    <div class="alert alert-error state-error" role="alert">
+      <span>{{ kpisError() }}</span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="loadKpis()">Reintentar</button>
+    </div>
+  } @else {
+    @if (kpis(); as k) {
+      @if (k.avisos?.length) {
+        <ul class="notes" aria-label="Avisos del reporte">
+          @for (a of k.avisos; track $index) {
+            <li>{{ a }}</li>
+          }
+        </ul>
+    }
+
+    <div class="kpis">
+      <div class="kpi">
+        <span class="kpi__label">Ocupación activa</span>
+        <span class="kpi__value">{{ k.ocupacionActiva | number: '1.0-1' }}</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi__label">Tiempo de ciclo promedio</span>
+        <span class="kpi__value">
+          @if (k.tiempoCicloPromedioHoras === null || k.tiempoCicloPromedioHoras === undefined) {
+            <span class="kpi__empty">Sin datos</span>
+          } @else {
+            {{ k.tiempoCicloPromedioHoras | number: '1.0-1' }} h
+          }
+        </span>
+      </div>
+      <div class="kpi">
+        <span class="kpi__label">Ingresos confirmados</span>
+        <span class="kpi__value">{{ k.ingresosConfirmados | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</span>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="hourly-title">
+      <h2 id="hourly-title">Reservas por hora</h2>
+      @if (hasHourlyData()) {
+        <app-bar-chart [data]="hourly()" caption="Reservas por hora" valueLabel="Reservas" />
+      } @else {
+        <app-empty-state title="Sin reservas en este rango" />
+      }
+    </section>
+
+    <section class="card" aria-labelledby="status-title">
+      <h2 id="status-title">Reservas por estado</h2>
+      <ul class="statuses">
+        @for (s of byStatus(); track s.status) {
+          <li><app-status-badge [status]="s.status" /> <strong>{{ s.count }}</strong></li>
+        }
+      </ul>
+    </section>
+    }
+  }
+
+  <section class="card" aria-labelledby="top-title">
+    <h2 id="top-title">Unidades más demandadas</h2>
+    @if (topLoading()) {
+      <app-loading-spinner label="Cargando unidades..." />
+    } @else if (topError()) {
+      <div class="alert alert-error state-error" role="alert">
+        <span>{{ topError() }}</span>
+        <button type="button" class="btn btn-secondary btn-sm" (click)="loadTopUnits()">Reintentar</button>
+      </div>
+    } @else if (topUnits().length === 0) {
+      <app-empty-state title="Sin datos para este rango" />
+    } @else {
+      <div class="table-wrapper">
+        <table class="table">
+          <caption class="visually-hidden">Unidades más demandadas</caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Unidad</th>
+              <th scope="col" class="num">Reservas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of topUnits(); track $index) {
+              <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>
+                  {{ unitName(u) }}
+                  <span class="meter" aria-hidden="true"><span [style.width.%]="(u.cantidad / topMax()) * 100"></span></span>
+                </td>
+                <td class="num"><strong>{{ u.cantidad }}</strong></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>

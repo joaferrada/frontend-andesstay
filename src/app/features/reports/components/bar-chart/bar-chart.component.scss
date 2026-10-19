@@ -1,0 +1,65 @@
+@use 'styles/variables' as *;
+
+.chart {
+  display: flex;
+  gap: $space-2;
+  min-width: 0;
+
+  &__axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 200px;
+    font-size: 0.75rem;
+    color: $color-text-muted;
+    text-align: right;
+  }
+
+  &__scroll {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  &__plot {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    min-width: 100%;
+    width: max-content;
+  }
+
+  &__col {
+    flex: 1 0 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__bar-area {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    border-bottom: 1px solid $color-border;
+    background: linear-gradient(to top, transparent 49.5%, rgba($color-border, 0.6) 50%, transparent 50.5%);
+  }
+
+  &__bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    background: $color-primary;
+  }
+
+  &__col:hover &__bar {
+    background: $color-accent;
+  }
+
+  &__label {
+    min-height: 1.2em;
+    margin-top: $space-1;
+    font-size: 0.6875rem;
+    color: $color-text-muted;
+    white-space: nowrap;
+  }
+}

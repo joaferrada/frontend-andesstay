@@ -1,0 +1,85 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.state-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-3;
+}
+
+.notes {
+  margin: 0;
+  padding: $space-2 $space-4 $space-2 $space-6;
+  border-left: 3px solid $color-accent;
+  background: $color-accent-soft;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $space-4;
+}
+
+.kpi {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+
+  &__label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $color-text-muted;
+  }
+
+  &__value {
+    font-size: $font-size-xxl;
+    font-weight: $font-weight-bold;
+    line-height: 1.1;
+    color: $color-primary-dark;
+  }
+
+  &__empty {
+    font-size: $font-size-lg;
+    color: $color-text-muted;
+  }
+}
+
+.statuses {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-3 $space-5;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+  }
+}
+
+.num {
+  text-align: right;
+}
+
+.meter {
+  display: block;
+  height: 6px;
+  margin-top: $space-1;
+  border-radius: $radius-pill;
+  background: $color-primary-soft;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: $color-primary;
+  }
+}
