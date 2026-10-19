@@ -78,8 +78,10 @@ Cada componente tiene sus archivos `.ts`, `.html` y `.scss` en su propia carpeta
 | Rol (Entra ID)     | Perfil       | Panel                               | Listar y filtrar | Crear | Cambiar estado | Eliminar |
 |--------------------|--------------|-------------------------------------|:---:|:---:|:---:|:---:|
 | `Admin`            | Administrador | Total de reservas y conteo por estado | ✔ | ✔ | ✔ | ✔ |
-| `Operador_Dominio` | Recepción    | Llegadas y salidas de hoy           | ✔ | ✔ | ✔ | — |
+| `Operador_Dominio` | Recepción    | Llegadas y salidas de hoy           | ✔ | — | ✔ | ✔ |
 | `Cliente_Dominio`  | Huésped      | Mis reservas y su estado            | ✔ | ✔ | — | — |
+
+`GET /api/reservations` ya devuelve solo las reservas del huésped del token (Admin y Operador ven todas), por lo que el frontend no filtra por usuario.
 | `Auditor`          | Auditor      | Últimas reservas (solo lectura)     | ✔ | — | — | — |
 
 La interfaz oculta las acciones no permitidas, pero la autorización real la aplica el backend. Si responde 403 se muestra "No tienes permisos para esta acción".
@@ -95,7 +97,7 @@ La interfaz oculta las acciones no permitidas, pero la autorización real la apl
 | `CHECKOUT`          | Check-out realizado | —                                |
 | `CANCELADA`         | Cancelada           | —                                |
 
-Las transiciones están definidas en `core/models/reservation-status.enum.ts` y se envían al backend con `PATCH /api/reservations/{id}/estado`.
+Las transiciones están definidas en `core/models/reservation-status.enum.ts` y se envían al backend con `PUT /api/reservations/{id}/status` y body `{ "status": "<ESTADO>" }`. Si el backend rechaza el cambio (400, 404 o 409), se muestra el `message` de su respuesta.
 
 ## Próximas etapas
 
