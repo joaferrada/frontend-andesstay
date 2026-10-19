@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Reservation } from '../../../../core/models/reservation.model';
 import { ReservationStatus } from '../../../../core/models/reservation-status.enum';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
@@ -13,12 +14,13 @@ export interface StatusChangeEvent {
 @Component({
   selector: 'app-reservation-table',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, StatusBadgeComponent, StatusActionsComponent],
+  imports: [CurrencyPipe, DatePipe, RouterLink, StatusBadgeComponent, StatusActionsComponent],
   templateUrl: './reservation-table.component.html',
   styleUrl: './reservation-table.component.scss'
 })
 export class ReservationTableComponent {
   readonly reservations = input.required<Reservation[]>();
+  readonly canEdit = input(false);
   readonly canChangeStatus = input(false);
   readonly canDelete = input(false);
   /** Id de la reserva con una operación en curso, para deshabilitar sus botones. */
@@ -26,4 +28,8 @@ export class ReservationTableComponent {
 
   readonly statusChange = output<StatusChangeEvent>();
   readonly remove = output<Reservation>();
+
+  hasActions(): boolean {
+    return this.canEdit() || this.canChangeStatus() || this.canDelete();
+  }
 }

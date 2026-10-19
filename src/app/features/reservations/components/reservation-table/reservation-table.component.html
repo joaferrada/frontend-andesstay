@@ -10,7 +10,7 @@
         <th scope="col">Salida</th>
         <th scope="col" class="num">Total</th>
         <th scope="col">Estado</th>
-        @if (canChangeStatus() || canDelete()) {
+        @if (hasActions()) {
           <th scope="col">Acciones</th>
         }
       </tr>
@@ -25,9 +25,14 @@
           <td class="nowrap">{{ r.fechaFin | date: 'dd-MM-yyyy' }}</td>
           <td class="num nowrap">{{ r.precioTotal | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</td>
           <td><app-status-badge [status]="r.estado" /></td>
-          @if (canChangeStatus() || canDelete()) {
+          @if (hasActions()) {
             <td>
               <div class="row-actions">
+                @if (canEdit()) {
+                  <a class="btn btn-secondary btn-sm" [routerLink]="['/reservations', r.id, 'edit']">
+                    Editar<span class="visually-hidden"> reserva #{{ r.id }}</span>
+                  </a>
+                }
                 @if (canChangeStatus()) {
                   <app-status-actions
                     [status]="r.estado"

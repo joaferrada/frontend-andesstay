@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
 import { roleGuard } from './core/auth/role.guard';
 import { entryRedirectGuard, loginPageGuard } from './core/auth/session.guard';
-import { ALL_ROLES } from './core/models/user-role.enum';
+import { RESERVATION_PERMISSIONS } from './core/auth/auth-role.service';
 
 export const routes: Routes = [
   {
@@ -36,10 +36,30 @@ export const routes: Routes = [
         path: 'reservations',
         title: 'Reservas | AndesStay',
         canActivate: [MsalGuard, roleGuard],
-        data: { roles: ALL_ROLES },
+        data: { roles: RESERVATION_PERMISSIONS.view },
         loadComponent: () =>
           import('./features/reservations/pages/reservation-list/reservation-list.component')
             .then(m => m.ReservationListComponent)
+      },
+      {
+        // Admin, Operador_Dominio, Cliente_Dominio
+        path: 'reservations/new',
+        title: 'Nueva reserva | AndesStay',
+        canActivate: [MsalGuard, roleGuard],
+        data: { roles: RESERVATION_PERMISSIONS.create },
+        loadComponent: () =>
+          import('./features/reservations/pages/reservation-editor/reservation-editor.component')
+            .then(m => m.ReservationEditorComponent)
+      },
+      {
+        // Admin, Operador_Dominio, Cliente_Dominio (el backend responde 404 si no es suya)
+        path: 'reservations/:id/edit',
+        title: 'Editar reserva | AndesStay',
+        canActivate: [MsalGuard, roleGuard],
+        data: { roles: RESERVATION_PERMISSIONS.edit },
+        loadComponent: () =>
+          import('./features/reservations/pages/reservation-editor/reservation-editor.component')
+            .then(m => m.ReservationEditorComponent)
       }
     ]
   },

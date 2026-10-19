@@ -90,7 +90,9 @@
           </div>
         } @empty {
           <app-empty-state title="Aún no tienes reservas" message="Cuando reserves un alojamiento aparecerá aquí.">
-            <a class="btn btn-primary btn-sm" routerLink="/reservations">Crear una reserva</a>
+            @if (authRoles.canCreate()) {
+              <a class="btn btn-primary btn-sm" routerLink="/reservations/new">Crear una reserva</a>
+            }
           </app-empty-state>
         }
       </section>

@@ -1,0 +1,17 @@
+@use 'styles/variables' as *;
+
+.editor__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-3;
+}
+
+.editor__status {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin: 0;
+  color: $color-text-muted;
+}
