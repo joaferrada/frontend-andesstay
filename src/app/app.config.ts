@@ -61,8 +61,10 @@ export function MSALInterceptorConfigFactory() {
   const protectedResourceMap =
     new Map<string, Array<string>>();
 
+  // Producción: <API Gateway>/api/* · Desarrollo (uri vacío): /api/* relativo, que MSAL resuelve
+  // contra el origen de la página. El comodín cubre también /api/reservations/{id} y /status.
   protectedResourceMap.set(
-  'https://oa3syj8vc0.execute-api.us-east-1.amazonaws.com/api/reservations',
+    `${environment.apiConfig.uri}/api/*`,
     environment.apiConfig.scopes
   );
 
