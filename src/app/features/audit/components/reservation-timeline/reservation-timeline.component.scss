@@ -1,0 +1,72 @@
+@use 'styles/variables' as *;
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  &__header,
+  &__error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $space-3;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 $space-2;
+    position: relative;
+    border-left: 2px solid $color-border;
+  }
+
+  &__item {
+    position: relative;
+    padding: 0 0 $space-5 $space-5;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  &__dot {
+    position: absolute;
+    left: -9px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $color-surface;
+    border: 3px solid $color-primary;
+  }
+
+  &__body p {
+    margin: 0 0 $space-1;
+  }
+
+  &__meta {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+  }
+
+  &__title {
+    font-weight: $font-weight-bold;
+  }
+
+  &__change {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+
+  &__detail {
+    font-size: $font-size-sm;
+  }
+}

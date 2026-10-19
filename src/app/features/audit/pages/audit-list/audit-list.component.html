@@ -1,0 +1,132 @@
+<section class="page" aria-labelledby="audit-title">
+  <header class="page-header">
+    <div>
+      <h1 id="audit-title">Auditoría</h1>
+      <p>Quién creó, confirmó, hizo check-in o check-out de cada reserva. Solo lectura.</p>
+    </div>
+  </header>
+
+  @if (selectedReservation(); as id) {
+    <app-reservation-timeline [reservationId]="id" (closed)="selectedReservation.set(null)" />
+  }
+
+  <form class="card filters" (ngSubmit)="search()" aria-label="Filtros de auditoría">
+    <div class="form-field">
+      <label for="f-actor">Usuario</label>
+      <input id="f-actor" name="actor" type="text" class="form-control" [(ngModel)]="actor"
+             placeholder="correo o nombre" autocomplete="off">
+    </div>
+
+    <div class="form-field">
+      <label for="f-tipo">Tipo de evento</label>
+      <select id="f-tipo" name="tipo" class="form-control" [(ngModel)]="tipo">
+        <option value="">Todos</option>
+        @for (t of types; track t) {
+          <option [value]="t">{{ typeLabels[t] }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="f-reserva">N° de reserva</label>
+      <input id="f-reserva" name="reservationId" type="number" min="1" step="1" inputmode="numeric"
+             class="form-control" [(ngModel)]="reservationId">
+    </div>
+
+    <div class="form-field">
+      <label for="f-desde">Desde</label>
+      <input id="f-desde" name="desde" type="date" class="form-control" [(ngModel)]="desde"
+             [class.is-invalid]="rangeError()" [attr.aria-invalid]="rangeError()" aria-describedby="f-rango-error">
+    </div>
+
+    <div class="form-field">
+      <label for="f-hasta">Hasta</label>
+      <input id="f-hasta" name="hasta" type="date" class="form-control" [(ngModel)]="hasta" [min]="desde || null"
+             [class.is-invalid]="rangeError()" [attr.aria-invalid]="rangeError()" aria-describedby="f-rango-error">
+    </div>
+
+    <div class="filters__actions">
+      <button type="button" class="btn btn-secondary" (click)="clear()">Limpiar</button>
+      <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+
+    @if (rangeError()) {
+      <p id="f-rango-error" class="field-error filters__error">La fecha «desde» no puede ser posterior a «hasta».</p>
+    }
+  </form>
+
+  @if (loading()) {
+    <app-loading-spinner label="Cargando eventos..." />
+  } @else if (error()) {
+    <div class="alert alert-error state-error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="load()">Reintentar</button>
+    </div>
+  } @else if (events().length === 0) {
+    <div class="card">
+      <app-empty-state
+        [title]="hasFilters() ? 'Sin eventos para estos filtros' : 'Aún no hay eventos registrados'"
+        [message]="hasFilters() ? 'Prueba con otros filtros o un rango de fechas más amplio.' : ''"
+      />
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <caption class="visually-hidden">Eventos de auditoría</caption>
+        <thead>
+          <tr>
+            <th scope="col">Fecha y hora</th>
+            <th scope="col">Evento</th>
+            <th scope="col">Reserva</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Cambio</th>
+            <th scope="col">Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of events(); track e.id) {
+            <tr>
+              <td class="nowrap">
+                <time [attr.datetime]="e.occurredAt">{{ e.occurredAt | date: 'dd-MM-yyyy HH:mm' }}</time>
+              </td>
+              <td class="nowrap">{{ eventLabel(e.tipo) }}</td>
+              <td>
+                <button type="button" class="link" (click)="openTimeline(e.reservationId)">
+                  #{{ e.reservationId }}<span class="visually-hidden">, ver trazabilidad</span>
+                </button>
+              </td>
+              <td>{{ e.actor || 'Sistema' }}</td>
+              <td>
+                @if (e.estadoAnterior || e.estadoNuevo) {
+                  <span class="change">
+                    @if (e.estadoAnterior) {
+                      <app-status-badge [status]="e.estadoAnterior" />
+                      <span aria-hidden="true">→</span><span class="visually-hidden">pasa a</span>
+                    }
+                    <app-status-badge [status]="e.estadoNuevo" />
+                  </span>
+                } @else {
+                  —
+                }
+              </td>
+              <td>{{ e.detalle || '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="pager" aria-label="Paginación">
+      <button type="button" class="btn btn-secondary btn-sm" (click)="goToPage(page() - 1)" [disabled]="page() === 0">
+        Anterior
+      </button>
+      <span aria-live="polite">
+        Página {{ page() + 1 }} de {{ totalPages() || 1 }} · {{ totalElements() }} eventos
+      </span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="goToPage(page() + 1)"
+              [disabled]="page() + 1 >= totalPages()">
+        Siguiente
+      </button>
+    </nav>
+  }
+</section>
