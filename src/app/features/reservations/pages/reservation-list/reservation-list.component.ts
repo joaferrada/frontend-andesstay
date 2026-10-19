@@ -54,12 +54,14 @@ export class ReservationListComponent implements OnInit {
 
   // Permisos por rol (Auditor solo lista y filtra)
   readonly canCreate = computed(() =>
-    this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Operador, UserRole.Cliente])
+    this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Cliente])
   );
   readonly canChangeStatus = computed(() =>
     this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Operador])
   );
-  readonly canDelete = computed(() => this.authRoles.hasRole(UserRole.Admin));
+  readonly canDelete = computed(() =>
+    this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Operador])
+  );
   readonly readOnly = computed(() => !this.canCreate() && !this.canChangeStatus() && !this.canDelete());
 
   readonly filtered = computed(() => {
