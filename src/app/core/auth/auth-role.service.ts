@@ -13,7 +13,9 @@ export const RESERVATION_PERMISSIONS = {
   create: [UserRole.Admin, UserRole.Operador, UserRole.Cliente],
   edit: [UserRole.Admin, UserRole.Operador, UserRole.Cliente],
   changeStatus: [UserRole.Admin, UserRole.Operador],
-  delete: [UserRole.Admin]
+  delete: [UserRole.Admin],
+  // El Cliente reserva a su nombre (datos del token); Admin y recepción ingresan los del huésped
+  registerGuest: [UserRole.Admin, UserRole.Operador]
 } as const satisfies Record<string, readonly UserRole[]>;
 
 @Injectable({
@@ -30,12 +32,26 @@ export class AuthRoleService {
     return Array.isArray(claims?.roles) ? (claims!.roles as string[]) : [];
   });
 
+  private readonly claims = computed(() =>
+    (this.account()?.idTokenClaims ?? {}) as { name?: unknown; upn?: unknown; preferred_username?: unknown }
+  );
+
+  /** Claim "name" del id token. */
   readonly userName = computed<string>(() => {
-    const acc = this.account();
-    return acc?.name || acc?.username || '';
+    const name = this.claims().name;
+    return (typeof name === 'string' && name) || this.account()?.name || this.userEmail();
   });
 
-  readonly userEmail = computed<string>(() => this.account()?.username ?? '');
+  /** Claim "upn" o, si no viene, "preferred_username" del id token. */
+  readonly userEmail = computed<string>(() => {
+    const { upn, preferred_username } = this.claims();
+    return (
+      (typeof upn === 'string' && upn) ||
+      (typeof preferred_username === 'string' && preferred_username) ||
+      this.account()?.username ||
+      ''
+    );
+  });
 
   // Permisos de reservas. Cliente_Dominio solo edita las suyas: el backend solo le devuelve esas.
   readonly canView = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.view));
@@ -43,6 +59,8 @@ export class AuthRoleService {
   readonly canEdit = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.edit));
   readonly canChangeStatus = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.changeStatus));
   readonly canDelete = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.delete));
+  /** Reserva a nombre de otra persona (ingresa nombre y correo del huésped). */
+  readonly canRegisterGuest = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.registerGuest));
   /** Sin ninguna acción disponible (Auditor). */
   readonly isReadOnly = computed(() =>
     !this.canCreate() && !this.canEdit() && !this.canChangeStatus() && !this.canDelete()
