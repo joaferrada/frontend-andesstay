@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ReservationService } from '../services/reservation.service';
+import { AuthRoleService } from '../services/auth-role.service';
 
 @Component({
   selector: 'app-reservations',
@@ -13,7 +15,7 @@ import { ReservationService } from '../services/reservation.service';
       <h2 style="color: #2b579a;">AndesStay - Mis Reservas</h2>
 
       <!-- NUEVA RESERVA -->
-      <div style="
+      <div *ngIf="puedeCrear" style="
         border: 1px solid #ccc;
         padding: 20px;
         margin-bottom: 25px;
@@ -87,22 +89,39 @@ import { ReservationService } from '../services/reservation.service';
 
       <!-- MENSAJE -->
       <p *ngIf="mensaje"
-         style="padding: 10px; background: #e8f5e9; border-radius: 5px;">
+         [style.background]="esError ? '#fdecea' : '#e8f5e9'"
+         [style.color]="esError ? '#a94442' : 'inherit'"
+         style="padding: 10px; border-radius: 5px;">
         {{ mensaje }}
       </p>
 
       <!-- LISTADO -->
       <h3>Mis reservas</h3>
 
+      <!-- FILTRO -->
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 15px;">
+        <input
+          type="text"
+          [(ngModel)]="filtroTexto"
+          placeholder="Buscar por cliente o alojamiento"
+          style="padding: 9px; min-width: 260px;"
+        >
+
+        <select [(ngModel)]="filtroEstado" style="padding: 9px;">
+          <option value="">Todos los estados</option>
+          <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+        </select>
+      </div>
+
       <p *ngIf="!cargado">Cargando reservas...</p>
 
-      <p *ngIf="cargado && reservas.length === 0"
+      <p *ngIf="cargado && reservasFiltradas.length === 0"
          style="color: #666;">
         No hay reservas registradas.
       </p>
 
       <table
-        *ngIf="cargado && reservas.length > 0"
+        *ngIf="cargado && reservasFiltradas.length > 0"
         border="1"
         style="
           width: 100%;
@@ -118,12 +137,13 @@ import { ReservationService } from '../services/reservation.service';
             <th style="padding: 10px;">Inicio</th>
             <th style="padding: 10px;">Fin</th>
             <th style="padding: 10px;">Precio</th>
-            <th style="padding: 10px;">Acciones</th>
+            <th style="padding: 10px;">Estado</th>
+            <th *ngIf="puedeCambiarEstado || puedeEliminar" style="padding: 10px;">Acciones</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr *ngFor="let r of reservas">
+          <tr *ngFor="let r of reservasFiltradas">
 
             <td style="padding: 10px;">
               {{ r.id }}
@@ -150,7 +170,20 @@ import { ReservationService } from '../services/reservation.service';
             </td>
 
             <td style="padding: 10px;">
+              <select
+                *ngIf="puedeCambiarEstado; else soloEstado"
+                [ngModel]="r.estado"
+                (ngModelChange)="cambiarEstado(r, $event)"
+                style="padding: 6px;"
+              >
+                <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+              </select>
+              <ng-template #soloEstado>{{ r.estado || '-' }}</ng-template>
+            </td>
+
+            <td *ngIf="puedeCambiarEstado || puedeEliminar" style="padding: 10px;">
               <button
+                *ngIf="puedeEliminar"
                 (click)="eliminarReserva(r.id)"
                 style="
                   padding: 7px 12px;
@@ -161,7 +194,7 @@ import { ReservationService } from '../services/reservation.service';
                   cursor: pointer;
                 "
               >
-                Cancelar
+                Eliminar
               </button>
             </td>
 
@@ -177,6 +210,12 @@ export class ReservationsComponent implements OnInit {
   reservas: any[] = [];
   cargado = false;
   mensaje = '';
+  esError = false;
+
+  filtroTexto = '';
+  filtroEstado = '';
+
+  readonly estados = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA'];
 
   nuevaReserva = {
     alojamientoNombre: '',
@@ -186,10 +225,40 @@ export class ReservationsComponent implements OnInit {
   };
 
   constructor(
-    private reservationService: ReservationService
+    private reservationService: ReservationService,
+    private authRoles: AuthRoleService
   ) {}
 
+  // Permisos por rol (Auditor solo lista y filtra)
+  get puedeCrear(): boolean {
+    return this.authRoles.hasAnyRole(['Admin', 'Operador_Dominio', 'Cliente_Dominio']);
+  }
+
+  get puedeCambiarEstado(): boolean {
+    return this.authRoles.hasAnyRole(['Admin', 'Operador_Dominio']);
+  }
+
+  get puedeEliminar(): boolean {
+    return this.authRoles.hasRole('Admin');
+  }
+
+  get reservasFiltradas(): any[] {
+    const texto = this.filtroTexto.trim().toLowerCase();
+
+    return this.reservas.filter(r => {
+      const coincideTexto = !texto ||
+        `${r.clienteUsername ?? ''} ${r.alojamientoNombre ?? ''}`
+          .toLowerCase()
+          .includes(texto);
+
+      const coincideEstado = !this.filtroEstado || r.estado === this.filtroEstado;
+
+      return coincideTexto && coincideEstado;
+    });
+  }
+
   ngOnInit(): void {
+    this.authRoles.refresh();
     this.cargarReservas();
   }
 
@@ -203,6 +272,7 @@ export class ReservationsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar reservas:', err);
+        this.mostrarError(err, 'No fue posible cargar las reservas.');
         this.cargado = true;
       }
     });
@@ -230,7 +300,7 @@ export class ReservationsComponent implements OnInit {
     this.reservationService.crearReserva(payload).subscribe({
       next: () => {
 
-        this.mensaje = 'Reserva creada correctamente.';
+        this.mostrarExito('Reserva creada correctamente.');
 
         this.nuevaReserva = {
           alojamientoNombre: '',
@@ -244,26 +314,56 @@ export class ReservationsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al guardar la reserva:', err);
-        this.mensaje = 'No fue posible crear la reserva.';
+        this.mostrarError(err, 'No fue posible crear la reserva.');
+      }
+    });
+  }
+
+  cambiarEstado(reserva: any, estado: string): void {
+
+    const estadoAnterior = reserva.estado;
+    reserva.estado = estado;
+
+    this.reservationService.cambiarEstado(reserva.id, estado).subscribe({
+      next: () => {
+        this.mostrarExito(`Estado de la reserva ${reserva.id} actualizado a ${estado}.`);
+      },
+      error: (err) => {
+        console.error('Error al cambiar estado:', err);
+        reserva.estado = estadoAnterior;
+        this.mostrarError(err, 'No fue posible cambiar el estado de la reserva.');
       }
     });
   }
 
   eliminarReserva(id: number): void {
 
-    if (!confirm('¿Seguro que deseas cancelar esta reserva?')) {
+    if (!confirm('¿Seguro que deseas eliminar esta reserva?')) {
       return;
     }
 
     this.reservationService.eliminarReserva(id).subscribe({
-  next: () => {
-    this.mensaje = 'Reserva cancelada correctamente.';
-    this.cargarReservas();
-  },
-  error: (err: any) => {
-    console.error('Error al eliminar reserva:', err);
-    this.mensaje = 'No fue posible cancelar la reserva.';
-  }
+      next: () => {
+        this.mostrarExito('Reserva eliminada correctamente.');
+        this.cargarReservas();
+      },
+      error: (err: any) => {
+        console.error('Error al eliminar reserva:', err);
+        this.mostrarError(err, 'No fue posible eliminar la reserva.');
+      }
     });
+  }
+
+  private mostrarExito(texto: string): void {
+    this.esError = false;
+    this.mensaje = texto;
+  }
+
+  private mostrarError(err: unknown, porDefecto: string): void {
+    this.esError = true;
+    this.mensaje =
+      err instanceof HttpErrorResponse && err.status === 403
+        ? 'No tienes permisos para esta acción.'
+        : porDefecto;
   }
 }
