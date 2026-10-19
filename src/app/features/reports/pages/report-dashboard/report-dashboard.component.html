@@ -29,46 +29,46 @@
             <li>{{ a }}</li>
           }
         </ul>
-    }
-
-    <div class="kpis">
-      <div class="kpi">
-        <span class="kpi__label">Ocupación activa</span>
-        <span class="kpi__value">{{ k.ocupacionActiva | number: '1.0-1' }}</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi__label">Tiempo de ciclo promedio</span>
-        <span class="kpi__value">
-          @if (k.tiempoCicloPromedioHoras === null || k.tiempoCicloPromedioHoras === undefined) {
-            <span class="kpi__empty">Sin datos</span>
-          } @else {
-            {{ k.tiempoCicloPromedioHoras | number: '1.0-1' }} h
-          }
-        </span>
-      </div>
-      <div class="kpi">
-        <span class="kpi__label">Ingresos confirmados</span>
-        <span class="kpi__value">{{ k.ingresosConfirmados | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</span>
-      </div>
-    </div>
-
-    <section class="card" aria-labelledby="hourly-title">
-      <h2 id="hourly-title">Reservas por hora</h2>
-      @if (hasHourlyData()) {
-        <app-bar-chart [data]="hourly()" caption="Reservas por hora" valueLabel="Reservas" />
-      } @else {
-        <app-empty-state title="Sin reservas en este rango" />
       }
-    </section>
 
-    <section class="card" aria-labelledby="status-title">
-      <h2 id="status-title">Reservas por estado</h2>
-      <ul class="statuses">
-        @for (s of byStatus(); track s.status) {
-          <li><app-status-badge [status]="s.status" /> <strong>{{ s.count }}</strong></li>
+      <div class="kpis">
+        <div class="kpi">
+          <span class="kpi__label">Ocupación activa</span>
+          <span class="kpi__value">{{ k.ocupacionActiva | number: '1.0-1' }}</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__label">Tiempo de ciclo promedio</span>
+          <span class="kpi__value">
+            @if (k.tiempoCicloPromedioHoras === null || k.tiempoCicloPromedioHoras === undefined) {
+              <span class="kpi__empty">Sin datos</span>
+            } @else {
+              {{ k.tiempoCicloPromedioHoras | number: '1.0-1' }} h
+            }
+          </span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__label">Ingresos confirmados</span>
+          <span class="kpi__value">{{ k.ingresosConfirmados | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</span>
+        </div>
+      </div>
+
+      <section class="card" aria-labelledby="hourly-title">
+        <h2 id="hourly-title">Reservas por hora</h2>
+        @if (hasHourlyData()) {
+          <app-bar-chart [data]="hourly()" caption="Reservas por hora" valueLabel="Reservas" />
+        } @else {
+          <app-empty-state title="Sin reservas en este rango" />
         }
-      </ul>
-    </section>
+      </section>
+
+      <section class="card" aria-labelledby="status-title">
+        <h2 id="status-title">Reservas por estado</h2>
+        <ul class="statuses">
+          @for (s of byStatus(); track s.status) {
+            <li><app-status-badge [status]="s.status" /> <strong>{{ s.count }}</strong></li>
+          }
+        </ul>
+      </section>
     }
   }
 
