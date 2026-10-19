@@ -24,6 +24,22 @@
     grid-column: 1 / -1;
   }
 
+  &__span-2 {
+    grid-column: span 2;
+
+    @include mobile {
+      grid-column: auto;
+    }
+  }
+
+  &__booker {
+    margin: 0;
+    padding: $space-3 $space-4;
+    border-radius: $radius-sm;
+    background: $color-primary-soft;
+    color: $color-primary-dark;
+  }
+
   &__actions {
     display: flex;
     justify-content: flex-end;

@@ -5,7 +5,57 @@
     <div class="alert alert-error" role="alert">{{ serverError() }}</div>
   }
 
+  @if (!registersGuest()) {
+    <p class="form__booker">
+      Reservando como: <strong>{{ authRoles.userName() }}</strong>
+      @if (authRoles.userEmail()) {
+        ({{ authRoles.userEmail() }})
+      }
+    </p>
+  }
+
   <div class="form__grid">
+    @if (registersGuest()) {
+      <div class="form-field">
+        <label for="huesped-nombre">Nombre del huésped</label>
+        <input
+          id="huesped-nombre"
+          type="text"
+          class="form-control"
+          formControlName="huespedNombre"
+          autocomplete="off"
+          [class.is-invalid]="showError('huespedNombre')"
+          [attr.aria-invalid]="showError('huespedNombre')"
+          aria-describedby="huesped-nombre-error"
+        >
+        @if (showError('huespedNombre')) {
+          <p id="huesped-nombre-error" class="field-error">
+            {{ form.controls.huespedNombre.hasError('maxlength') ? 'Máximo 120 caracteres.' : 'Indica el nombre del huésped.' }}
+          </p>
+        }
+      </div>
+
+      <div class="form-field form__span-2">
+        <label for="huesped-email">Correo del huésped</label>
+        <input
+          id="huesped-email"
+          type="email"
+          class="form-control"
+          formControlName="huespedEmail"
+          autocomplete="off"
+          placeholder="nombre@correo.cl"
+          [class.is-invalid]="showError('huespedEmail')"
+          [attr.aria-invalid]="showError('huespedEmail')"
+          aria-describedby="huesped-email-error"
+        >
+        @if (showError('huespedEmail')) {
+          <p id="huesped-email-error" class="field-error">
+            {{ form.controls.huespedEmail.hasError('required') ? 'Indica el correo del huésped.' : 'Ingresa un correo válido.' }}
+          </p>
+        }
+      </div>
+    }
+
     <div class="form-field form__wide">
       <label for="alojamiento">Alojamiento</label>
       <input
