@@ -68,6 +68,7 @@
     <app-reservation-table
       [reservations]="filtered()"
       [canEdit]="authRoles.canEdit()"
+      [canViewAudit]="authRoles.canViewAudit()"
       [canChangeStatus]="authRoles.canChangeStatus()"
       [canDelete]="authRoles.canDelete()"
       [busyId]="busyId()"
