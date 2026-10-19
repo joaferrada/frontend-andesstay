@@ -12,6 +12,18 @@
   font-weight: $font-weight-semibold;
 }
 
+.guest {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+
+  &__email {
+    color: $color-text-muted;
+    font-size: 0.8125rem;
+    word-break: break-all;
+  }
+}
+
 .row-actions {
   display: flex;
   flex-wrap: wrap;
