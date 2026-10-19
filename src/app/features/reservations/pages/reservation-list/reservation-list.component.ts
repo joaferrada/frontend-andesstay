@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthRoleService } from '../../../../core/auth/auth-role.service';
 import { ReservationService } from '../../../../core/services/reservation.service';
-import { friendlyHttpMessage } from '../../../../core/interceptors/http-error.interceptor';
+import { friendlyHttpMessage, isGloballyHandled } from '../../../../core/interceptors/http-error.interceptor';
 import { Reservation } from '../../../../core/models/reservation.model';
 import { ALL_STATUSES, ReservationStatus } from '../../../../core/models/reservation-status.enum';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
@@ -160,19 +160,16 @@ export class ReservationListComponent implements OnInit {
    * (en un 409 incluye las transiciones posibles).
    */
   private notifyActionError(err: unknown, fallback: string): void {
-    const status = err instanceof HttpErrorResponse ? err.status : -1;
-    const handledByInterceptor = status === 0 || status === 401 || status === 403 || status >= 500;
-    if (handledByInterceptor) {
+    if (isGloballyHandled(err)) {
       return;
     }
+    // err.error.message si existe; si no, un mensaje genérico según el código
+    this.toast.error(friendlyHttpMessage(err, fallback));
 
-    const backendMessage = err instanceof HttpErrorResponse ? err.error?.message : undefined;
-    if (typeof backendMessage === 'string' && backendMessage.trim()) {
-      this.toast.error(backendMessage);
-    } else if (status === 404) {
-      this.toast.error('La reserva no fue encontrada.');
-    } else {
-      this.toast.error(friendlyHttpMessage(err, fallback));
+    // 404 (ya no existe o no es tuya) y 409 (estado desactualizado): refrescar el listado
+    const status = err instanceof HttpErrorResponse ? err.status : -1;
+    if (status === 404 || status === 409) {
+      this.load();
     }
   }
 }
