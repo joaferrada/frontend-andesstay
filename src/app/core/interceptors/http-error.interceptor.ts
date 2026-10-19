@@ -12,13 +12,24 @@ export function isGloballyHandled(error: unknown): boolean {
   return error.status === 0 || error.status === 401 || error.status === 403 || error.status >= 500;
 }
 
+export const FORBIDDEN_MESSAGE = 'No tienes permisos para esta acción.';
+export const UNAVAILABLE_MESSAGE = 'Servicio no disponible, intenta más tarde.';
+
 /**
- * Mensaje para el usuario. El backend responde { timestamp, status, error, message }:
- * si trae "message" se usa tal cual; si no, un texto genérico según el código.
+ * Mensaje para el usuario. 403 y 503 usan siempre un texto fijo. En el resto, el backend
+ * responde { timestamp, status, error, message }: si trae "message" se usa tal cual;
+ * si no, un texto genérico según el código.
  */
 export function friendlyHttpMessage(error: unknown, fallback = 'Ocurrió un error inesperado.'): string {
   if (!(error instanceof HttpErrorResponse)) {
     return fallback;
+  }
+
+  if (error.status === 403) {
+    return FORBIDDEN_MESSAGE;
+  }
+  if (error.status === 503) {
+    return UNAVAILABLE_MESSAGE;
   }
 
   const backendMessage = (error.error as { message?: unknown } | null)?.message;
@@ -33,12 +44,10 @@ export function friendlyHttpMessage(error: unknown, fallback = 'Ocurrió un erro
       return 'Los datos enviados no son válidos.';
     case error.status === 401:
       return 'Tu sesión expiró o no es válida. Inicia sesión nuevamente.';
-    case error.status === 403:
-      return 'No tienes permisos para esta acción.';
     case error.status === 404:
-      return 'La reserva no existe o no tienes acceso a ella.';
+      return 'No se encontró lo solicitado o no tienes acceso a ello.';
     case error.status === 409:
-      return 'La operación no está permitida para el estado actual de la reserva.';
+      return 'La operación no está permitida en el estado actual.';
     case error.status >= 500:
       return 'El servidor tuvo un problema. Intenta nuevamente en unos minutos.';
     default:
