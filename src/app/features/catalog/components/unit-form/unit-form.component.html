@@ -1,0 +1,134 @@
+<form class="card form" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="unit-form-title">
+  <h2 id="unit-form-title">{{ unit() ? 'Editar unidad' : 'Nueva unidad' }}</h2>
+
+  @if (serverError()) {
+    <div class="alert alert-error" role="alert">{{ serverError() }}</div>
+  }
+
+  <div class="form__grid">
+    <div class="form-field form__span-2">
+      <label for="unit-nombre">Nombre</label>
+      <input id="unit-nombre" type="text" class="form-control" formControlName="nombre"
+             placeholder="Ej: Cabaña Lenga 2"
+             [class.is-invalid]="showError('nombre')" [attr.aria-invalid]="showError('nombre')"
+             aria-describedby="unit-nombre-error">
+      @if (showError('nombre')) {
+        <p id="unit-nombre-error" class="field-error">Indica el nombre (máximo 120 caracteres).</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="unit-tipo">Tipo</label>
+      <select id="unit-tipo" class="form-control" formControlName="tipo"
+              [class.is-invalid]="showError('tipo')" [attr.aria-invalid]="showError('tipo')"
+              aria-describedby="unit-tipo-error">
+        <option value="" disabled>Selecciona un tipo</option>
+        @for (t of types; track t) {
+          <option [value]="t">{{ typeLabels[t] }}</option>
+        }
+      </select>
+      @if (showError('tipo')) {
+        <p id="unit-tipo-error" class="field-error">Selecciona el tipo de unidad.</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="unit-hostal">Hostal</label>
+      <input id="unit-hostal" type="text" class="form-control" formControlName="hostal"
+             placeholder="Ej: Lodge Torres del Paine"
+             [class.is-invalid]="showError('hostal')" [attr.aria-invalid]="showError('hostal')"
+             aria-describedby="unit-hostal-error">
+      @if (showError('hostal')) {
+        <p id="unit-hostal-error" class="field-error">Indica el hostal.</p>
+      }
+    </div>
+
+    <div class="form-field form__span-2">
+      <label for="unit-ubicacion">Ubicación</label>
+      <input id="unit-ubicacion" type="text" class="form-control" formControlName="ubicacion"
+             placeholder="Ej: Puerto Natales, Magallanes"
+             [class.is-invalid]="showError('ubicacion')" [attr.aria-invalid]="showError('ubicacion')"
+             aria-describedby="unit-ubicacion-error">
+      @if (showError('ubicacion')) {
+        <p id="unit-ubicacion-error" class="field-error">Indica la ubicación.</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="unit-capacidad">Capacidad (personas)</label>
+      <input id="unit-capacidad" type="number" min="1" step="1" inputmode="numeric" class="form-control"
+             formControlName="capacidad"
+             [class.is-invalid]="showError('capacidad')" [attr.aria-invalid]="showError('capacidad')"
+             aria-describedby="unit-capacidad-error">
+      @if (showError('capacidad')) {
+        <p id="unit-capacidad-error" class="field-error">Debe ser un número entero mayor a 0.</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="unit-tarifa">Tarifa por noche (CLP)</label>
+      <input id="unit-tarifa" type="number" min="1" step="1" inputmode="numeric" class="form-control"
+             formControlName="tarifaNoche"
+             [class.is-invalid]="showError('tarifaNoche')" [attr.aria-invalid]="showError('tarifaNoche')"
+             aria-describedby="unit-tarifa-error">
+      @if (showError('tarifaNoche')) {
+        <p id="unit-tarifa-error" class="field-error">La tarifa debe ser mayor a 0.</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="unit-cupos-totales">Cupos totales</label>
+      <input id="unit-cupos-totales" type="number" min="1" step="1" inputmode="numeric" class="form-control"
+             formControlName="cuposTotales"
+             [class.is-invalid]="showError('cuposTotales')" [attr.aria-invalid]="showError('cuposTotales')"
+             aria-describedby="unit-cupos-totales-error">
+      @if (showError('cuposTotales')) {
+        <p id="unit-cupos-totales-error" class="field-error">Debe ser un número entero mayor a 0.</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="unit-cupos-disponibles">Cupos disponibles</label>
+      <input id="unit-cupos-disponibles" type="number" min="0" step="1" inputmode="numeric" class="form-control"
+             formControlName="cuposDisponibles"
+             [class.is-invalid]="showError('cuposDisponibles') || showCuposError"
+             [attr.aria-invalid]="showError('cuposDisponibles') || showCuposError"
+             aria-describedby="unit-cupos-disponibles-error">
+      @if (showError('cuposDisponibles')) {
+        <p id="unit-cupos-disponibles-error" class="field-error">Debe ser un número entero de 0 o más.</p>
+      } @else if (showCuposError) {
+        <p id="unit-cupos-disponibles-error" class="field-error">No pueden superar los cupos totales.</p>
+      }
+    </div>
+
+    @if (unit()) {
+      <div class="form-field form__check">
+        <input id="unit-activo" type="checkbox" formControlName="activo">
+        <label for="unit-activo">Unidad activa</label>
+      </div>
+    }
+  </div>
+
+  <div class="form__actions">
+    @if (unit()?.activo) {
+      <button type="button" class="btn btn-danger form__remove" (click)="confirmingRemoval.set(true)" [disabled]="saving()">
+        Dar de baja
+      </button>
+    }
+    <button type="button" class="btn btn-secondary" (click)="dismissed.emit()" [disabled]="saving()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Guardando...' : (unit() ? 'Guardar cambios' : 'Crear unidad') }}
+    </button>
+  </div>
+</form>
+
+<app-confirm-dialog
+  [open]="confirmingRemoval()"
+  title="Dar de baja unidad"
+  [message]="'La unidad «' + (unit()?.nombre ?? '') + '» dejará de estar disponible para nuevas reservas.'"
+  confirmText="Dar de baja"
+  cancelText="Volver"
+  [danger]="true"
+  (confirmed)="confirmRemoval()"
+  (cancelled)="confirmingRemoval.set(false)"
+/>

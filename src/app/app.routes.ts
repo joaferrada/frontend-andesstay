@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
 import { roleGuard } from './core/auth/role.guard';
 import { entryRedirectGuard, loginPageGuard } from './core/auth/session.guard';
-import { RESERVATION_PERMISSIONS } from './core/auth/auth-role.service';
+import { CATALOG_PERMISSIONS, RESERVATION_PERMISSIONS } from './core/auth/auth-role.service';
 
 export const routes: Routes = [
   {
@@ -60,6 +60,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/reservations/pages/reservation-editor/reservation-editor.component')
             .then(m => m.ReservationEditorComponent)
+      },
+      {
+        path: 'catalog',
+        title: 'Catálogo | AndesStay',
+        canActivate: [MsalGuard, roleGuard],
+        data: { roles: CATALOG_PERMISSIONS.view },
+        loadComponent: () =>
+          import('./features/catalog/pages/unit-list/unit-list.component').then(m => m.UnitListComponent)
       }
     ]
   },

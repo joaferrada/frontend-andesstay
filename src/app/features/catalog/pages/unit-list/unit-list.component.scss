@@ -1,0 +1,127 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: $space-3 $space-4;
+
+  .form-control {
+    min-width: 200px;
+  }
+
+  &__check {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    min-height: 40px;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-sm;
+
+    input {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.state-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-3;
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: $space-4;
+}
+
+.unit {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  padding: $space-4;
+
+  &--inactive {
+    opacity: 0.7;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-2;
+  }
+
+  &__type {
+    font-size: 0.8125rem;
+    font-weight: $font-weight-bold;
+    color: $color-accent;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: $font-size-lg;
+  }
+
+  &__meta {
+    margin: 0;
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+  }
+
+  &__facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-2;
+    margin: $space-2 0 0;
+
+    dt {
+      font-size: 0.75rem;
+      color: $color-text-muted;
+    }
+
+    dd {
+      margin: 0;
+      font-weight: $font-weight-bold;
+    }
+  }
+
+  &__edit {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+}
+
+.pill {
+  padding: 2px $space-2;
+  border-radius: $radius-pill;
+  font-size: 0.75rem;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+
+  &--ok {
+    background: $color-success-bg;
+    color: $color-success;
+  }
+
+  &--out {
+    background: $color-danger-bg;
+    color: $color-danger;
+  }
+
+  &--muted {
+    background: #eceff1;
+    color: $color-text-muted;
+  }
+}

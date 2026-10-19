@@ -1,0 +1,104 @@
+<section class="page" aria-labelledby="catalog-title">
+  <header class="page-header">
+    <div>
+      <h1 id="catalog-title">Catálogo de unidades</h1>
+      <p>Habitaciones, cabañas, lodges y domos de la red AndesStay.</p>
+    </div>
+    @if (authRoles.canManageCatalog() && !formOpen()) {
+      <button type="button" class="btn btn-primary" (click)="openNew()">Nueva unidad</button>
+    }
+  </header>
+
+  @if (authRoles.canManageCatalog() && formOpen()) {
+    <app-unit-form
+      [unit]="editingUnit()"
+      (saved)="onFormDone()"
+      (removed)="onFormDone()"
+      (dismissed)="closeForm()"
+    />
+  }
+
+  <div class="filters" role="group" aria-label="Filtros del catálogo">
+    <div class="form-field">
+      <label for="filter-tipo">Tipo</label>
+      <select id="filter-tipo" class="form-control" [ngModel]="tipo()" (ngModelChange)="setTipo($event)">
+        <option value="">Todos los tipos</option>
+        @for (t of types; track t) {
+          <option [value]="t">{{ typeLabels[t] }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="filter-hostal">Hostal</label>
+      <select id="filter-hostal" class="form-control" [ngModel]="hostal()" (ngModelChange)="setHostal($event)">
+        <option value="">Todos los hostales</option>
+        @for (h of hostales(); track h) {
+          <option [value]="h">{{ h }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filters__check">
+      <input id="filter-disponibles" type="checkbox" [ngModel]="soloDisponibles()" (ngModelChange)="setSoloDisponibles($event)">
+      <label for="filter-disponibles">Solo con cupos disponibles</label>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner label="Cargando catálogo..." />
+  } @else if (error()) {
+    <div class="alert alert-error state-error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="load()">Reintentar</button>
+    </div>
+  } @else if (units().length === 0) {
+    <div class="card">
+      <app-empty-state
+        [title]="hasFilters() ? 'Sin unidades para estos filtros' : 'El catálogo está vacío'"
+        [message]="hasFilters() ? 'Prueba con otros filtros.' : (authRoles.canManageCatalog() ? 'Crea la primera unidad con «Nueva unidad».' : '')"
+      >
+        @if (hasFilters()) {
+          <button type="button" class="btn btn-secondary btn-sm" (click)="clearFilters()">Quitar filtros</button>
+        }
+      </app-empty-state>
+    </div>
+  } @else {
+    <ul class="grid" aria-label="Unidades">
+      @for (u of units(); track u.id) {
+        <li class="unit" [class.unit--inactive]="!u.activo">
+          <div class="unit__head">
+            <span class="unit__type">{{ typeLabel(u.tipo) }}</span>
+            @if (!u.activo) {
+              <span class="pill pill--muted">Inactiva</span>
+            } @else if (u.cuposDisponibles > 0) {
+              <span class="pill pill--ok">{{ u.cuposDisponibles }} de {{ u.cuposTotales }} disponibles</span>
+            } @else {
+              <span class="pill pill--out">Agotado</span>
+            }
+          </div>
+
+          <h2 class="unit__name">{{ u.nombre }}</h2>
+          <p class="unit__meta">{{ u.hostal }} · {{ u.ubicacion }}</p>
+
+          <dl class="unit__facts">
+            <div>
+              <dt>Capacidad</dt>
+              <dd>{{ u.capacidad }} {{ u.capacidad === 1 ? 'persona' : 'personas' }}</dd>
+            </div>
+            <div>
+              <dt>Tarifa por noche</dt>
+              <dd>{{ u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</dd>
+            </div>
+          </dl>
+
+          @if (authRoles.canManageCatalog()) {
+            <button type="button" class="btn btn-secondary btn-sm unit__edit" (click)="openEdit(u)">
+              Editar<span class="visually-hidden"> {{ u.nombre }}</span>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>
