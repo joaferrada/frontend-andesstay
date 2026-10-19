@@ -5,6 +5,7 @@ import { entryRedirectGuard, loginPageGuard } from './core/auth/session.guard';
 import {
   AUDIT_PERMISSIONS,
   CATALOG_PERMISSIONS,
+  REPORT_PERMISSIONS,
   RESERVATION_PERMISSIONS
 } from './core/auth/auth-role.service';
 
@@ -80,6 +81,15 @@ export const routes: Routes = [
         data: { roles: AUDIT_PERMISSIONS.view },
         loadComponent: () =>
           import('./features/audit/pages/audit-list/audit-list.component').then(m => m.AuditListComponent)
+      },
+      {
+        path: 'reports',
+        title: 'Reportería | AndesStay',
+        canActivate: [MsalGuard, roleGuard],
+        data: { roles: REPORT_PERMISSIONS.view },
+        loadComponent: () =>
+          import('./features/reports/pages/report-dashboard/report-dashboard.component')
+            .then(m => m.ReportDashboardComponent)
       }
     ]
   },

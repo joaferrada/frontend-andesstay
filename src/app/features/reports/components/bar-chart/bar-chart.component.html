@@ -1,0 +1,31 @@
+<div class="chart">
+  <div class="chart__axis" aria-hidden="true">
+    <span>{{ max() }}</span>
+    <span>0</span>
+  </div>
+
+  <div class="chart__scroll">
+    <div class="chart__plot" aria-hidden="true">
+      @for (d of data(); track $index) {
+        <div class="chart__col" [title]="d.label + ': ' + d.value">
+          <div class="chart__bar-area">
+            <div class="chart__bar" [style.height.%]="height(d.value)"></div>
+          </div>
+          <span class="chart__label">{{ $index % labelEvery() === 0 ? d.label : '' }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<table class="visually-hidden">
+  <caption>{{ caption() }}</caption>
+  <thead>
+    <tr><th scope="col">Período</th><th scope="col">{{ valueLabel() }}</th></tr>
+  </thead>
+  <tbody>
+    @for (d of data(); track $index) {
+      <tr><td>{{ d.label }}</td><td>{{ d.value }}</td></tr>
+    }
+  </tbody>
+</table>
