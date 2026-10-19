@@ -4,6 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
 import { AuthenticationResult } from '@azure/msal-browser';
 import { environment } from '../enviroments/enviroment';
+import { AuthRoleService } from '../services/auth-role.service';
 
 @Component({
   selector: 'app-root',
@@ -28,12 +29,26 @@ import { environment } from '../enviroments/enviroment';
           Iniciar Sesión con Microsoft
         </button>
 
-        <button
+        <div
           *ngIf="loggedIn"
-          (click)="logout()"
-          style="padding: 10px; cursor: pointer;">
-          Cerrar Sesión
-        </button>
+          style="display: flex; align-items: center; gap: 12px;">
+
+          <span>
+            <strong>{{ authRoles.userName() }}</strong>
+            <span style="color: #555;">
+              ·
+              {{ authRoles.roles().length > 0
+                   ? authRoles.roles().join(', ')
+                   : 'Sin rol asignado' }}
+            </span>
+          </span>
+
+          <button
+            (click)="logout()"
+            style="padding: 10px; cursor: pointer;">
+            Cerrar Sesión
+          </button>
+        </div>
       </nav>
 
       <main style="margin-top: 20px;">
@@ -60,7 +75,8 @@ export class AppComponent implements OnInit {
   loggedIn = false;
 
   constructor(
-    private authService: MsalService
+    private authService: MsalService,
+    public authRoles: AuthRoleService
   ) {}
 
   ngOnInit(): void {
@@ -99,6 +115,8 @@ export class AppComponent implements OnInit {
     ) {
       this.authService.instance.setActiveAccount(accounts[0]);
     }
+
+    this.authRoles.refresh();
 
     console.log('Cuentas MSAL:', accounts);
   }
