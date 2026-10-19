@@ -1,0 +1,54 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  h2 {
+    margin: 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: $space-4;
+
+    @include mobile {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  &__span-2 {
+    grid-column: span 2;
+
+    @include mobile {
+      grid-column: auto;
+    }
+  }
+
+  &__check {
+    flex-direction: row;
+    align-items: center;
+    gap: $space-2;
+    align-self: end;
+    min-height: 40px;
+
+    input {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+
+  &__remove {
+    margin-right: auto;
+  }
+}
