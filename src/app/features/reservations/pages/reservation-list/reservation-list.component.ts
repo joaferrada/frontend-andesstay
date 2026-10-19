@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthRoleService } from '../../../../core/auth/auth-role.service';
 import { ReservationService } from '../../../../core/services/reservation.service';
 import { friendlyHttpMessage } from '../../../../core/interceptors/http-error.interceptor';
@@ -169,11 +170,24 @@ export class ReservationListComponent implements OnInit {
     });
   }
 
-  /** 401/403/5xx ya los notifica el interceptor; aquí se cubre el resto. */
+  /**
+   * 0/401/403/5xx ya los notifica el interceptor; aquí se cubre el resto (400, 404, 409...).
+   * El backend responde { timestamp, status, error, message }; si trae "message" se muestra tal cual
+   * (en un 409 incluye las transiciones posibles).
+   */
   private notifyActionError(err: unknown, fallback: string): void {
-    const status = (err as { status?: number })?.status ?? -1;
+    const status = err instanceof HttpErrorResponse ? err.status : -1;
     const handledByInterceptor = status === 0 || status === 401 || status === 403 || status >= 500;
-    if (!handledByInterceptor) {
+    if (handledByInterceptor) {
+      return;
+    }
+
+    const backendMessage = err instanceof HttpErrorResponse ? err.error?.message : undefined;
+    if (typeof backendMessage === 'string' && backendMessage.trim()) {
+      this.toast.error(backendMessage);
+    } else if (status === 404) {
+      this.toast.error('La reserva no fue encontrada.');
+    } else {
       this.toast.error(friendlyHttpMessage(err, fallback));
     }
   }
