@@ -60,6 +60,9 @@ export class ReservationService {
       fechaFin: reserva.fechaFin.slice(0, 10),
       precioTotal: reserva.precioTotal
     };
+    if (reserva.unidadId) {
+      body.unidadId = reserva.unidadId;
+    }
     if (reserva.huespedNombre) {
       body.huespedNombre = reserva.huespedNombre;
     }
