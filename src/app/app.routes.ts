@@ -2,7 +2,11 @@ import { Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
 import { roleGuard } from './core/auth/role.guard';
 import { entryRedirectGuard, loginPageGuard } from './core/auth/session.guard';
-import { CATALOG_PERMISSIONS, RESERVATION_PERMISSIONS } from './core/auth/auth-role.service';
+import {
+  AUDIT_PERMISSIONS,
+  CATALOG_PERMISSIONS,
+  RESERVATION_PERMISSIONS
+} from './core/auth/auth-role.service';
 
 export const routes: Routes = [
   {
@@ -68,6 +72,14 @@ export const routes: Routes = [
         data: { roles: CATALOG_PERMISSIONS.view },
         loadComponent: () =>
           import('./features/catalog/pages/unit-list/unit-list.component').then(m => m.UnitListComponent)
+      },
+      {
+        path: 'audit',
+        title: 'Auditoría | AndesStay',
+        canActivate: [MsalGuard, roleGuard],
+        data: { roles: AUDIT_PERMISSIONS.view },
+        loadComponent: () =>
+          import('./features/audit/pages/audit-list/audit-list.component').then(m => m.AuditListComponent)
       }
     ]
   },

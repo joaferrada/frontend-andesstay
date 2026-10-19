@@ -1,0 +1,58 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  align-items: end;
+  gap: $space-3 $space-4;
+
+  &__actions {
+    display: flex;
+    gap: $space-2;
+  }
+
+  &__error {
+    grid-column: 1 / -1;
+  }
+}
+
+.state-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-3;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.change {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $space-1;
+}
+
+.link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: $color-primary;
+  font: inherit;
+  font-weight: $font-weight-semibold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: $space-3;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}

@@ -1,0 +1,44 @@
+<section class="card timeline" aria-labelledby="timeline-title">
+  <header class="timeline__header">
+    <h2 id="timeline-title">Trazabilidad de la reserva #{{ reservationId() }}</h2>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="closed.emit()">Cerrar</button>
+  </header>
+
+  @if (loading()) {
+    <app-loading-spinner label="Cargando trazabilidad..." />
+  } @else if (error()) {
+    <div class="alert alert-error timeline__error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="load()">Reintentar</button>
+    </div>
+  } @else if (events().length === 0) {
+    <app-empty-state title="Sin eventos" message="Esta reserva aún no tiene eventos registrados." />
+  } @else {
+    <ol class="timeline__list">
+      @for (e of events(); track e.id) {
+        <li class="timeline__item">
+          <span class="timeline__dot" aria-hidden="true"></span>
+          <div class="timeline__body">
+            <p class="timeline__meta">
+              <time [attr.datetime]="e.occurredAt">{{ e.occurredAt | date: 'dd-MM-yyyy HH:mm' }}</time>
+              · {{ e.actor || 'Sistema' }}
+            </p>
+            <p class="timeline__title">{{ eventLabel(e.tipo) }}</p>
+            @if (e.estadoAnterior || e.estadoNuevo) {
+              <p class="timeline__change">
+                @if (e.estadoAnterior) {
+                  <app-status-badge [status]="e.estadoAnterior" />
+                  <span aria-hidden="true">→</span><span class="visually-hidden">pasa a</span>
+                }
+                <app-status-badge [status]="e.estadoNuevo" />
+              </p>
+            }
+            @if (e.detalle) {
+              <p class="timeline__detail">{{ e.detalle }}</p>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</section>
