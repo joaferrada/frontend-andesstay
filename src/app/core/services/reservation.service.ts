@@ -26,7 +26,8 @@ export class ReservationService {
     return this.http.post<Reservation>(this.apiUrl, reserva);
   }
 
-  cambiarEstado(id: number, estado: ReservationStatus): Observable<Reservation> {
-    return this.http.patch<Reservation>(`${this.apiUrl}/${id}/estado`, { estado });
+  // El CORS del BFF no permite PATCH; la respuesta es la reserva actualizada
+  cambiarEstado(id: number, status: ReservationStatus): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.apiUrl}/${id}/status`, { status });
   }
 }
