@@ -1,0 +1,121 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: $sidebar-width;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  padding: $space-4 $space-3;
+  background: $color-primary-dark;
+  color: #e9f1ee;
+  overflow-y: auto;
+
+  @include mobile {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 900;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.2s ease, visibility 0.2s;
+    box-shadow: $shadow-md;
+
+    &--open {
+      transform: translateX(0);
+      visibility: visible;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-3;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: #fff;
+  }
+
+  &__logo {
+    width: 36px;
+    height: 22px;
+    fill: #a9c8bc;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-2 $space-3;
+    border-radius: $radius-sm;
+    color: inherit;
+    text-decoration: none;
+    font-weight: $font-weight-semibold;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &:focus-visible {
+      outline-color: #fff;
+    }
+
+    &--active {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    &--disabled {
+      color: #a7bab3;
+      cursor: not-allowed;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+
+  &__icon {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &__label {
+    flex: 1;
+  }
+
+  &__soon {
+    padding: 1px $space-2;
+    border-radius: $radius-pill;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.6875rem;
+    font-weight: $font-weight-semibold;
+    white-space: nowrap;
+  }
+}

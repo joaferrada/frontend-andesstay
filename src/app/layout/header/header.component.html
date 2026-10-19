@@ -1,0 +1,33 @@
+<header class="header">
+  <button
+    type="button"
+    class="btn btn-secondary btn-sm header__menu"
+    aria-controls="app-sidebar"
+    [attr.aria-expanded]="menuOpen()"
+    (click)="toggleMenu.emit()"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+    Menú
+  </button>
+
+  <div class="header__user">
+    <div class="header__identity">
+      <span class="header__name">{{ authRoles.userName() }}</span>
+      @if (authRoles.userEmail() && authRoles.userEmail() !== authRoles.userName()) {
+        <span class="header__email">{{ authRoles.userEmail() }}</span>
+      }
+    </div>
+
+    <ul class="header__roles" aria-label="Roles asignados">
+      @for (chip of roleChips(); track chip.value) {
+        <li class="chip" [title]="chip.value">{{ chip.label }}</li>
+      } @empty {
+        <li class="chip chip--muted">Sin rol asignado</li>
+      }
+    </ul>
+  </div>
+
+  <button type="button" class="btn btn-secondary btn-sm" (click)="logout()">
+    Cerrar sesión
+  </button>
+</header>
