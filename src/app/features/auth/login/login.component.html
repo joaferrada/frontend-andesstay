@@ -1,0 +1,36 @@
+<main class="login">
+  <section class="login__card" aria-labelledby="login-title">
+    <div class="login__brand">
+      <svg class="login__logo" viewBox="0 0 64 40" aria-hidden="true">
+        <path d="M2 38 L22 10 L32 22 L42 6 L62 38 Z" />
+        <path class="login__snow" d="M38 12 L42 6 L46 12 L42 10 Z" />
+      </svg>
+      <span class="login__name">AndesStay</span>
+    </div>
+
+    <h1 id="login-title">Bienvenido a AndesStay</h1>
+    <p class="login__lead">
+      Gestión de reservas para nuestra red de hostales, cabañas y lodges
+      en los Andes y la Patagonia.
+    </p>
+
+    <button
+      type="button"
+      class="btn btn-primary login__button"
+      (click)="login()"
+      [disabled]="redirecting()"
+    >
+      <svg class="login__ms" viewBox="0 0 21 21" aria-hidden="true">
+        <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+        <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+        <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+        <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+      </svg>
+      {{ redirecting() ? 'Redirigiendo a Microsoft...' : 'Iniciar sesión con Microsoft' }}
+    </button>
+
+    <p class="login__hint">
+      Usa tu cuenta corporativa o de huésped registrada en Microsoft Entra ID.
+    </p>
+  </section>
+</main>
