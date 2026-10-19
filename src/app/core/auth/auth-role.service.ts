@@ -79,6 +79,9 @@ export class AuthRoleService {
   login(): void {
     this.msalService.loginRedirect({
       scopes: environment.apiConfig.scopes
+    }).subscribe({
+      // p. ej. interaction_in_progress si ya hay un login en curso
+      error: error => console.error('No fue posible iniciar sesión con Microsoft:', error)
     });
   }
 
