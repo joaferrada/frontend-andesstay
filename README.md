@@ -1,59 +1,102 @@
-# FrontendAndesstay
+# AndesStay · Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.27.
+Aplicación web de gestión de reservas para la red AndesStay: 20 hostales, cabañas y lodges de turismo de intereses especiales en los Andes y la Patagonia (Chile).
 
-## Development server
+- Angular 19 con componentes standalone y rutas lazy (`loadComponent`).
+- Autenticación con Microsoft Entra ID mediante MSAL (`@azure/msal-angular`).
+- Autorización por *app roles* de Entra ID (claim `roles` del token).
+- Estilos propios en SCSS, sin librerías de UI.
 
-To start a local development server, run:
+## Requisitos
 
-```bash
-ng serve
-```
+- Node.js 22 y npm.
+- Una cuenta de Entra ID con alguno de los roles de la aplicación asignado.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Desarrollo
 
 ```bash
-ng generate component component-name
+npm install
+npm start          # equivale a ng serve
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Abre `http://localhost:4200/`. Sin sesión, la aplicación muestra `/login`; con sesión, redirige a `/dashboard`.
+
+## Build
 
 ```bash
-ng generate --help
+npm run build      # ng build, salida en dist/frontend-andesstay/browser
 ```
 
-## Building
+El despliegue a GitHub Pages lo realiza el workflow `.github/workflows/deploy.yml`.
 
-To build the project run:
+## Estructura de carpetas
 
-```bash
-ng build
+```
+src/
+├── enviroments/                 # configuración de MSAL y del API Gateway (usada por el deploy)
+├── styles/                      # _variables.scss, _mixins.scss, _base.scss
+├── styles.scss                  # punto de entrada de estilos globales
+└── app/
+    ├── core/
+    │   ├── auth/                # AuthRoleService, roleGuard, guards de sesión
+    │   ├── interceptors/        # http-error.interceptor (mensajes para 401/403/500)
+    │   ├── models/              # Reservation, ReservationStatus, UserRole
+    │   └── services/            # ReservationService (API de reservas)
+    ├── shared/
+    │   ├── components/          # status-badge, empty-state, loading-spinner, confirm-dialog, toast
+    │   └── pipes/               # statusLabel (CHECKIN_PENDIENTE → "Check-in pendiente")
+    ├── layout/
+    │   ├── shell/               # layout principal: sidebar + header + router-outlet
+    │   ├── header/              # usuario conectado, roles como chips, cerrar sesión
+    │   └── sidebar/             # menú filtrado por rol, colapsable en móvil
+    └── features/
+        ├── auth/login/          # pantalla "Iniciar sesión con Microsoft"
+        ├── dashboard/           # tarjetas por rol con datos reales de reservas
+        └── reservations/
+            ├── pages/reservation-list/
+            └── components/
+                ├── reservation-form/
+                ├── reservation-table/
+                └── status-actions/
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Cada componente tiene sus archivos `.ts`, `.html` y `.scss` en su propia carpeta. Los `.scss` importan los tokens con `@use 'styles/variables' as *;` (ruta configurada en `angular.json` con `stylePreprocessorOptions.includePaths`).
 
-## Running unit tests
+## Rutas
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+| Ruta            | Guards                     | Roles permitidos                 |
+|-----------------|----------------------------|----------------------------------|
+| `/`             | sesión                     | redirige a `/dashboard` o `/login` |
+| `/login`        | sesión (si ya hay, redirige) | público                        |
+| `/dashboard`    | `MsalGuard`, `roleGuard`   | cualquier usuario autenticado    |
+| `/reservations` | `MsalGuard`, `roleGuard`   | Admin, Operador_Dominio, Cliente_Dominio, Auditor |
 
-```bash
-ng test
-```
+`roleGuard` lee `data.roles` de la ruta. Si el usuario no tiene ninguno de esos roles, vuelve al panel con un aviso.
 
-## Running end-to-end tests
+## Roles y permisos
 
-For end-to-end (e2e) testing, run:
+| Rol (Entra ID)     | Perfil       | Panel                               | Listar y filtrar | Crear | Cambiar estado | Eliminar |
+|--------------------|--------------|-------------------------------------|:---:|:---:|:---:|:---:|
+| `Admin`            | Administrador | Total de reservas y conteo por estado | ✔ | ✔ | ✔ | ✔ |
+| `Operador_Dominio` | Recepción    | Llegadas y salidas de hoy           | ✔ | ✔ | ✔ | — |
+| `Cliente_Dominio`  | Huésped      | Mis reservas y su estado            | ✔ | ✔ | — | — |
+| `Auditor`          | Auditor      | Últimas reservas (solo lectura)     | ✔ | — | — | — |
 
-```bash
-ng e2e
-```
+La interfaz oculta las acciones no permitidas, pero la autorización real la aplica el backend. Si responde 403 se muestra "No tienes permisos para esta acción".
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Estados de reserva
 
-## Additional Resources
+| Estado              | Texto               | Transiciones permitidas          |
+|---------------------|---------------------|----------------------------------|
+| `CREADA`            | Creada              | Confirmar, Cancelar              |
+| `CONFIRMADA`        | Confirmada          | Check-in pendiente, Cancelar     |
+| `CHECKIN_PENDIENTE` | Check-in pendiente  | Registrar check-in, Cancelar     |
+| `EN_ESTADIA`        | En estadía          | Registrar check-out              |
+| `CHECKOUT`          | Check-out realizado | —                                |
+| `CANCELADA`         | Cancelada           | —                                |
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Las transiciones están definidas en `core/models/reservation-status.enum.ts` y se envían al backend con `PATCH /api/reservations/{id}/estado`.
+
+## Próximas etapas
+
+El menú muestra como deshabilitados (texto "Próxima etapa") los módulos de Alojamientos, Reportes y Auditoría, que todavía no tienen backend.
