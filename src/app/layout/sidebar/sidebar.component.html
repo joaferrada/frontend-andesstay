@@ -9,24 +9,16 @@
   <ul class="sidebar__list">
     @for (item of items(); track item.label) {
       <li>
-        @if (item.disabled || !item.route) {
-          <span class="sidebar__link sidebar__link--disabled" aria-disabled="true">
-            <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ $implicit: item.icon }" />
-            <span class="sidebar__label">{{ item.label }}</span>
-            <span class="sidebar__soon">Próxima etapa</span>
-          </span>
-        } @else {
-          <a
-            class="sidebar__link"
-            [routerLink]="item.route"
-            routerLinkActive="sidebar__link--active"
-            ariaCurrentWhenActive="page"
-            (click)="navigate.emit()"
-          >
-            <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ $implicit: item.icon }" />
-            <span class="sidebar__label">{{ item.label }}</span>
-          </a>
-        }
+        <a
+          class="sidebar__link"
+          [routerLink]="item.route"
+          routerLinkActive="sidebar__link--active"
+          ariaCurrentWhenActive="page"
+          (click)="navigate.emit()"
+        >
+          <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ $implicit: item.icon }" />
+          <span class="sidebar__label">{{ item.label }}</span>
+        </a>
       </li>
     }
   </ul>
