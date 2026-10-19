@@ -1,0 +1,54 @@
+@use 'styles/variables' as *;
+
+.toasts {
+  position: fixed;
+  right: $space-4;
+  bottom: $space-4;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  width: min(380px, calc(100vw - #{$space-6}));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  border-radius: $radius-md;
+  border-left: 4px solid currentColor;
+  box-shadow: $shadow-md;
+
+  &--success {
+    background: $color-success-bg;
+    color: $color-success;
+  }
+
+  &--error {
+    background: $color-danger-bg;
+    color: $color-danger;
+  }
+
+  &--info {
+    background: $color-info-bg;
+    color: $color-info;
+  }
+
+  &__message {
+    flex: 1;
+    margin: 0;
+    font-weight: $font-weight-semibold;
+  }
+
+  &__close {
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: $font-size-sm;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+}

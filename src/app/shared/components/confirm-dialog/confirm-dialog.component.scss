@@ -1,0 +1,30 @@
+@use 'styles/variables' as *;
+
+.dialog {
+  width: min(440px, calc(100vw - #{$space-6}));
+  padding: $space-5;
+  border: none;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  color: $color-text;
+
+  &::backdrop {
+    background: rgba(31, 42, 46, 0.45);
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+  }
+
+  &__message {
+    color: $color-text-muted;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $space-2;
+    margin-top: $space-5;
+  }
+}

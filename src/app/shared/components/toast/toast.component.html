@@ -1,0 +1,17 @@
+<div class="toasts" aria-live="polite" aria-atomic="false">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      [class]="'toast toast--' + toast.type"
+      [attr.role]="toast.type === 'error' ? 'alert' : 'status'"
+    >
+      <p class="toast__message">{{ toast.message }}</p>
+      <button
+        type="button"
+        class="toast__close"
+        (click)="toastService.dismiss(toast.id)"
+      >
+        Cerrar
+      </button>
+    </div>
+  }
+</div>
