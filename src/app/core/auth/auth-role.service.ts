@@ -2,7 +2,19 @@ import { Injectable, computed, signal } from '@angular/core';
 import { MsalService } from '@azure/msal-angular';
 import { AccountInfo } from '@azure/msal-browser';
 import { environment } from '../../../enviroments/enviroment';
-import { UserRole } from '../models/user-role.enum';
+import { ALL_ROLES, UserRole } from '../models/user-role.enum';
+
+/**
+ * Matriz de permisos de reservas (el backend responde 403 si no se cumple).
+ * Única fuente de verdad: la usan AuthRoleService y app.routes.ts.
+ */
+export const RESERVATION_PERMISSIONS = {
+  view: ALL_ROLES,
+  create: [UserRole.Admin, UserRole.Operador, UserRole.Cliente],
+  edit: [UserRole.Admin, UserRole.Operador, UserRole.Cliente],
+  changeStatus: [UserRole.Admin, UserRole.Operador],
+  delete: [UserRole.Admin]
+} as const satisfies Record<string, readonly UserRole[]>;
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +36,17 @@ export class AuthRoleService {
   });
 
   readonly userEmail = computed<string>(() => this.account()?.username ?? '');
+
+  // Permisos de reservas. Cliente_Dominio solo edita las suyas: el backend solo le devuelve esas.
+  readonly canView = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.view));
+  readonly canCreate = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.create));
+  readonly canEdit = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.edit));
+  readonly canChangeStatus = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.changeStatus));
+  readonly canDelete = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.delete));
+  /** Sin ninguna acción disponible (Auditor). */
+  readonly isReadOnly = computed(() =>
+    !this.canCreate() && !this.canEdit() && !this.canChangeStatus() && !this.canDelete()
+  );
 
   constructor(private msalService: MsalService) {
     this.refresh();
@@ -49,7 +72,7 @@ export class AuthRoleService {
     return this.roles().includes(role);
   }
 
-  hasAnyRole(roles: UserRole[]): boolean {
+  hasAnyRole(roles: readonly UserRole[]): boolean {
     return roles.some(r => this.hasRole(r));
   }
 
