@@ -1,8 +1,14 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { AuthRoleService } from '../auth/auth-role.service';
+
+/**
+ * Marca una petición opcional cuyo error no debe mostrarse como aviso global
+ * (p. ej. el resumen de KPIs en el panel). El 401 sigue iniciando sesión.
+ */
+export const SILENT_HTTP_ERRORS = new HttpContextToken<boolean>(() => false);
 
 /** Errores que se notifican de forma global; el resto (400, 404, 409) lo maneja cada vista. */
 export function isGloballyHandled(error: unknown): boolean {
@@ -79,7 +85,9 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: unknown) => {
       if (isGloballyHandled(error)) {
-        toast.error(friendlyHttpMessage(error));
+        if (!req.context.get(SILENT_HTTP_ERRORS)) {
+          toast.error(friendlyHttpMessage(error));
+        }
 
         // 401: sesión inválida -> login de MSAL. 403: sin permiso, la sesión se mantiene.
         if (error instanceof HttpErrorResponse && error.status === 401 && shouldRedirectToLogin()) {

@@ -24,6 +24,21 @@
 
     <!-- ADMIN: total y conteo por estado -->
     @if (isAdmin()) {
+      @if (authRoles.canViewReports()) {
+        <a class="card quick" routerLink="/reports">
+          <span class="quick__text">
+            <strong>Reportería</strong>
+            <span class="muted">Reservas por hora, tiempo de ciclo y unidades más demandadas</span>
+          </span>
+          @if (occupancy() !== null) {
+            <span class="quick__kpi">
+              <span class="quick__value">{{ occupancy() | number: '1.0-1' }}</span>
+              <span class="muted">ocupación activa (24 h)</span>
+            </span>
+          }
+          <span class="quick__go" aria-hidden="true">→</span>
+        </a>
+      }
       <section class="card" aria-labelledby="admin-title">
         <h2 id="admin-title">Estado general de la red</h2>
         <div class="stats">

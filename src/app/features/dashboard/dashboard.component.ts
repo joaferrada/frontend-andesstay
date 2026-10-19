@@ -1,8 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthRoleService } from '../../core/auth/auth-role.service';
 import { ReservationService } from '../../core/services/reservation.service';
+import { ReportService } from '../../core/services/report.service';
 import { friendlyHttpMessage } from '../../core/interceptors/http-error.interceptor';
 import { Reservation } from '../../core/models/reservation.model';
 import { ALL_STATUSES } from '../../core/models/reservation-status.enum';
@@ -23,12 +24,13 @@ const dateKey = (value: string | undefined) => (value ?? '').slice(0, 10);
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [DatePipe, RouterLink, StatusBadgeComponent, LoadingSpinnerComponent, EmptyStateComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, StatusBadgeComponent, LoadingSpinnerComponent, EmptyStateComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   private readonly reservationService = inject(ReservationService);
+  private readonly reportService = inject(ReportService);
   readonly authRoles = inject(AuthRoleService);
 
   readonly reservations = signal<Reservation[]>([]);
@@ -41,6 +43,9 @@ export class DashboardComponent implements OnInit {
   readonly isCliente = computed(() => this.authRoles.hasRole(UserRole.Cliente));
   readonly isAuditor = computed(() => this.authRoles.hasRole(UserRole.Auditor));
   readonly hasNoRole = computed(() => this.authRoles.roles().length === 0);
+
+  /** Ocupación activa para el acceso rápido a Reportería; null si el servicio no respondió. */
+  readonly occupancy = signal<number | null>(null);
 
   readonly statusCounts = computed(() =>
     ALL_STATUSES.map(status => ({
@@ -71,6 +76,17 @@ export class DashboardComponent implements OnInit {
       return;
     }
     this.load();
+    if (this.authRoles.canViewReports()) {
+      this.loadOccupancy();
+    }
+  }
+
+  /** Opcional: si el servicio de reportes falla, el panel sigue funcionando sin la cifra. */
+  private loadOccupancy(): void {
+    this.reportService.kpis('last24h', { silent: true }).subscribe({
+      next: kpis => this.occupancy.set(typeof kpis?.ocupacionActiva === 'number' ? kpis.ocupacionActiva : null),
+      error: err => console.warn('Reportería no disponible para el panel:', err)
+    });
   }
 
   load(): void {
