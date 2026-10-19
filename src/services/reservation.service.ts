@@ -23,4 +23,8 @@ export class ReservationService {
   crearReserva(reserva: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, reserva);
   }
+
+  cambiarEstado(id: number, estado: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/estado`, { estado });
+  }
 }
