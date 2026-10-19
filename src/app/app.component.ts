@@ -1,139 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
-import { AuthenticationResult } from '@azure/msal-browser';
-import { environment } from '../enviroments/enviroment';
 import { AuthRoleService } from './core/auth/auth-role.service';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
-  template: `
-    <div style="font-family: sans-serif; padding: 20px;">
-      
-      <nav style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 10px;
-      ">
-        <h2>AndesStay - BarrioDigital</h2>
-
-        <button
-          *ngIf="!loggedIn"
-          (click)="login()"
-          style="padding: 10px; cursor: pointer;">
-          Iniciar Sesión con Microsoft
-        </button>
-
-        <div
-          *ngIf="loggedIn"
-          style="display: flex; align-items: center; gap: 12px;">
-
-          <span>
-            <strong>{{ authRoles.userName() }}</strong>
-            <span style="color: #555;">
-              ·
-              {{ authRoles.roles().length > 0
-                   ? authRoles.roles().join(', ')
-                   : 'Sin rol asignado' }}
-            </span>
-          </span>
-
-          <button
-            (click)="logout()"
-            style="padding: 10px; cursor: pointer;">
-            Cerrar Sesión
-          </button>
-        </div>
-      </nav>
-
-      <main style="margin-top: 20px;">
-
-        <div *ngIf="loggedIn">
-          <h3 style="color: green;">
-            ¡Autenticación exitosa!
-          </h3>
-
-          <p>
-            Usuario autenticado correctamente con Microsoft Entra ID.
-          </p>
-        </div>
-
-        <router-outlet></router-outlet>
-
-      </main>
-
-    </div>
-  `
+  imports: [RouterOutlet, ToastComponent],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-
-  loggedIn = false;
-
-  constructor(
-    private authService: MsalService,
-    public authRoles: AuthRoleService
-  ) {}
+  private readonly msalService = inject(MsalService);
+  private readonly authRoles = inject(AuthRoleService);
 
   ngOnInit(): void {
-
-    this.authService.instance
+    this.msalService.instance
       .handleRedirectPromise()
-      .then((response: AuthenticationResult | null) => {
-
+      .then(response => {
         if (response?.account) {
-          this.authService.instance.setActiveAccount(response.account);
-
-          console.log('LOGIN CORRECTO');
-          console.log('Account:', response.account);
-          console.log('Access Token:', response.accessToken);
+          this.msalService.instance.setActiveAccount(response.account);
         }
-
-        this.checkAccount();
-
+        this.authRoles.refresh();
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Error procesando redirect de MSAL:', error);
-        this.checkAccount();
+        this.authRoles.refresh();
       });
-  }
-
-  checkAccount(): void {
-
-    const accounts =
-      this.authService.instance.getAllAccounts();
-
-    this.loggedIn = accounts.length > 0;
-
-    if (
-      accounts.length > 0 &&
-      !this.authService.instance.getActiveAccount()
-    ) {
-      this.authService.instance.setActiveAccount(accounts[0]);
-    }
-
-    this.authRoles.refresh();
-
-    console.log('Cuentas MSAL:', accounts);
-  }
-
-  login(): void {
-
-    console.log('Iniciando login con Microsoft Entra ID...');
-
-    this.authService.loginRedirect({
-      scopes: environment.apiConfig.scopes
-    });
-  }
-
-  logout(): void {
-
-    this.authService.logoutRedirect({
-      postLogoutRedirectUri: 'http://localhost:4200'
-    });
   }
 }
