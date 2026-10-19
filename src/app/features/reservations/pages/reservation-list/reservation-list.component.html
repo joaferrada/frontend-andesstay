@@ -3,7 +3,7 @@
     <div>
       <h1 id="reservations-title">Reservas</h1>
       <p>
-        @if (readOnly()) {
+        @if (authRoles.isReadOnly()) {
           Consulta de reservas en modo solo lectura.
         } @else {
           Gestiona las reservas de la red AndesStay.
@@ -11,16 +11,10 @@
       </p>
     </div>
 
-    @if (canCreate() && !showForm()) {
-      <button type="button" class="btn btn-primary" (click)="showForm.set(true)">
-        Nueva reserva
-      </button>
+    @if (authRoles.canCreate()) {
+      <a class="btn btn-primary" routerLink="/reservations/new">Nueva reserva</a>
     }
   </header>
-
-  @if (canCreate() && showForm()) {
-    <app-reservation-form (created)="onCreated()" (dismissed)="showForm.set(false)" />
-  }
 
   <div class="toolbar">
     <div class="form-field">
@@ -56,7 +50,7 @@
     <div class="card">
       <app-empty-state
         title="No hay reservas registradas"
-        [message]="canCreate() ? 'Crea la primera reserva con el botón «Nueva reserva».' : ''"
+        [message]="authRoles.canCreate() ? 'Crea la primera reserva con el botón «Nueva reserva».' : ''"
       />
     </div>
   } @else if (filtered().length === 0) {
@@ -73,8 +67,9 @@
   } @else {
     <app-reservation-table
       [reservations]="filtered()"
-      [canChangeStatus]="canChangeStatus()"
-      [canDelete]="canDelete()"
+      [canEdit]="authRoles.canEdit()"
+      [canChangeStatus]="authRoles.canChangeStatus()"
+      [canDelete]="authRoles.canDelete()"
       [busyId]="busyId()"
       (statusChange)="onStatusChange($event)"
       (remove)="onRemove($event)"

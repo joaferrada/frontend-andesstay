@@ -1,18 +1,17 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { AuthRoleService } from '../../../../core/auth/auth-role.service';
 import { ReservationService } from '../../../../core/services/reservation.service';
 import { friendlyHttpMessage } from '../../../../core/interceptors/http-error.interceptor';
 import { Reservation } from '../../../../core/models/reservation.model';
 import { ALL_STATUSES, ReservationStatus } from '../../../../core/models/reservation-status.enum';
-import { UserRole } from '../../../../core/models/user-role.enum';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { StatusLabelPipe } from '../../../../shared/pipes/status-label.pipe';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ReservationFormComponent } from '../../components/reservation-form/reservation-form.component';
 import {
   ReservationTableComponent,
   StatusChangeEvent
@@ -27,11 +26,11 @@ type PendingAction =
   standalone: true,
   imports: [
     FormsModule,
+    RouterLink,
     StatusLabelPipe,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     ConfirmDialogComponent,
-    ReservationFormComponent,
     ReservationTableComponent
   ],
   templateUrl: './reservation-list.component.html',
@@ -39,7 +38,8 @@ type PendingAction =
 })
 export class ReservationListComponent implements OnInit {
   private readonly reservationService = inject(ReservationService);
-  private readonly authRoles = inject(AuthRoleService);
+  // Permisos centralizados en AuthRoleService (Auditor: solo lectura)
+  readonly authRoles = inject(AuthRoleService);
   private readonly toast = inject(ToastService);
 
   readonly statuses = ALL_STATUSES;
@@ -48,21 +48,8 @@ export class ReservationListComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly statusFilter = signal<ReservationStatus | ''>('');
-  readonly showForm = signal(false);
   readonly busyId = signal<number | null>(null);
   readonly pending = signal<PendingAction | null>(null);
-
-  // Permisos por rol (Auditor solo lista y filtra)
-  readonly canCreate = computed(() =>
-    this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Cliente])
-  );
-  readonly canChangeStatus = computed(() =>
-    this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Operador])
-  );
-  readonly canDelete = computed(() =>
-    this.authRoles.hasAnyRole([UserRole.Admin, UserRole.Operador])
-  );
-  readonly readOnly = computed(() => !this.canCreate() && !this.canChangeStatus() && !this.canDelete());
 
   readonly filtered = computed(() => {
     const status = this.statusFilter();
@@ -104,11 +91,6 @@ export class ReservationListComponent implements OnInit {
         this.loading.set(false);
       }
     });
-  }
-
-  onCreated(): void {
-    this.showForm.set(false);
-    this.load();
   }
 
   onStatusChange(event: StatusChangeEvent): void {

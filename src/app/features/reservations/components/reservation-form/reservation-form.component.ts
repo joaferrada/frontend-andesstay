@@ -1,4 +1,4 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, OnInit, inject, input, output, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -36,12 +36,15 @@ const dateRange: ValidatorFn = (group: AbstractControl): ValidationErrors | null
   templateUrl: './reservation-form.component.html',
   styleUrl: './reservation-form.component.scss'
 })
-export class ReservationFormComponent {
+export class ReservationFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly reservationService = inject(ReservationService);
   private readonly toast = inject(ToastService);
 
-  readonly created = output<Reservation>();
+  /** Reserva a editar; si es null el formulario crea una nueva. */
+  readonly reservation = input<Reservation | null>(null);
+
+  readonly saved = output<Reservation>();
   readonly dismissed = output<void>();
 
   readonly saving = signal(false);
@@ -57,6 +60,18 @@ export class ReservationFormComponent {
     },
     { validators: dateRange }
   );
+
+  ngOnInit(): void {
+    const r = this.reservation();
+    if (r) {
+      this.form.setValue({
+        alojamientoNombre: r.alojamientoNombre ?? '',
+        fechaInicio: (r.fechaInicio ?? '').slice(0, 10),
+        fechaFin: (r.fechaFin ?? '').slice(0, 10),
+        precioTotal: r.precioTotal ?? null
+      });
+    }
+  }
 
   showError(field: 'alojamientoNombre' | 'fechaInicio' | 'fechaFin' | 'precioTotal'): boolean {
     const control = this.form.controls[field];
@@ -77,25 +92,32 @@ export class ReservationFormComponent {
     }
 
     const value = this.form.getRawValue();
-    this.saving.set(true);
-
-    this.reservationService.crearReserva({
+    const body = {
       alojamientoNombre: value.alojamientoNombre.trim(),
       fechaInicio: value.fechaInicio,
       fechaFin: value.fechaFin,
       precioTotal: Number(value.precioTotal)
-    }).subscribe({
+    };
+    const editing = this.reservation();
+    this.saving.set(true);
+
+    const request$ = editing
+      ? this.reservationService.actualizarReserva(editing.id, body)
+      : this.reservationService.crearReserva(body);
+
+    request$.subscribe({
       next: reservation => {
         this.saving.set(false);
         this.submitted.set(false);
-        this.form.reset();
-        this.toast.success('Reserva creada correctamente.');
-        this.created.emit(reservation);
+        this.toast.success(editing ? `Reserva #${editing.id} actualizada.` : 'Reserva creada correctamente.');
+        this.saved.emit(reservation);
       },
       error: err => {
-        console.error('Error al crear la reserva:', err);
+        console.error('Error al guardar la reserva:', err);
         this.saving.set(false);
-        this.serverError.set(friendlyHttpMessage(err, 'No fue posible crear la reserva.'));
+        this.serverError.set(
+          friendlyHttpMessage(err, editing ? 'No fue posible actualizar la reserva.' : 'No fue posible crear la reserva.')
+        );
       }
     });
   }

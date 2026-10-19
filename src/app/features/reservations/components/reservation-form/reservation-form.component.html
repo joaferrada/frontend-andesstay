@@ -1,5 +1,5 @@
 <form class="card form" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="form-title">
-  <h2 id="form-title">Nueva reserva</h2>
+  <h2 id="form-title">{{ reservation() ? 'Datos de la reserva #' + reservation()!.id : 'Datos de la reserva' }}</h2>
 
   @if (serverError()) {
     <div class="alert alert-error" role="alert">{{ serverError() }}</div>
@@ -87,7 +87,7 @@
       Cancelar
     </button>
     <button type="submit" class="btn btn-primary" [disabled]="saving()">
-      {{ saving() ? 'Guardando...' : 'Guardar reserva' }}
+      {{ saving() ? 'Guardando...' : (reservation() ? 'Guardar cambios' : 'Crear reserva') }}
     </button>
   </div>
 </form>

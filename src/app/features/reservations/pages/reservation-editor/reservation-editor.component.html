@@ -1,0 +1,40 @@
+<section class="page" aria-labelledby="editor-title">
+  <header class="page-header">
+    <div>
+      <h1 id="editor-title">{{ id() === null ? 'Nueva reserva' : 'Editar reserva' }}</h1>
+      <p>
+        @if (id() === null) {
+          La reserva se crea en estado «Creada».
+        } @else {
+          Modifica los datos de la reserva. El estado se cambia desde el listado.
+        }
+      </p>
+    </div>
+    <a class="btn btn-secondary" routerLink="/reservations">Volver al listado</a>
+  </header>
+
+  @if (loading()) {
+    <app-loading-spinner label="Cargando reserva..." />
+  } @else if (error()) {
+    <div class="alert alert-error editor__error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="load(id()!)">Reintentar</button>
+    </div>
+  } @else if (notFound()) {
+    <div class="card">
+      <app-empty-state
+        title="Reserva no encontrada"
+        message="La reserva no existe o no tienes acceso a ella."
+      >
+        <a class="btn btn-primary btn-sm" routerLink="/reservations">Ir al listado</a>
+      </app-empty-state>
+    </div>
+  } @else if (id() === null) {
+    <app-reservation-form (saved)="goToList()" (dismissed)="goToList()" />
+  } @else {
+    @if (reservation(); as r) {
+      <p class="editor__status">Estado actual: <app-status-badge [status]="r.estado" /></p>
+      <app-reservation-form [reservation]="r" (saved)="goToList()" (dismissed)="goToList()" />
+    }
+  }
+</section>
