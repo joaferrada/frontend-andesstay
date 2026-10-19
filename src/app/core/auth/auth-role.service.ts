@@ -15,7 +15,24 @@ export const RESERVATION_PERMISSIONS = {
   changeStatus: [UserRole.Admin, UserRole.Operador],
   delete: [UserRole.Admin],
   // El Cliente reserva a su nombre (datos del token); Admin y recepción ingresan los del huésped
-  registerGuest: [UserRole.Admin, UserRole.Operador]
+  registerGuest: [UserRole.Admin, UserRole.Operador],
+  // El precio se calcula como noches x tarifa; solo el Admin puede ajustarlo
+  editPrice: [UserRole.Admin]
+} as const satisfies Record<string, readonly UserRole[]>;
+
+/** Catálogo: todos lo consultan; solo el Admin crea, edita o da de baja unidades. */
+export const CATALOG_PERMISSIONS = {
+  view: ALL_ROLES,
+  manage: [UserRole.Admin]
+} as const satisfies Record<string, readonly UserRole[]>;
+
+/** Auditoría (solo lectura) y reportería. */
+export const AUDIT_PERMISSIONS = {
+  view: [UserRole.Admin, UserRole.Auditor]
+} as const satisfies Record<string, readonly UserRole[]>;
+
+export const REPORT_PERMISSIONS = {
+  view: [UserRole.Admin]
 } as const satisfies Record<string, readonly UserRole[]>;
 
 @Injectable({
@@ -61,6 +78,12 @@ export class AuthRoleService {
   readonly canDelete = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.delete));
   /** Reserva a nombre de otra persona (ingresa nombre y correo del huésped). */
   readonly canRegisterGuest = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.registerGuest));
+  readonly canEditPrice = computed(() => this.hasAnyRole(RESERVATION_PERMISSIONS.editPrice));
+
+  // Catálogo, auditoría y reportería
+  readonly canManageCatalog = computed(() => this.hasAnyRole(CATALOG_PERMISSIONS.manage));
+  readonly canViewAudit = computed(() => this.hasAnyRole(AUDIT_PERMISSIONS.view));
+  readonly canViewReports = computed(() => this.hasAnyRole(REPORT_PERMISSIONS.view));
   /** Sin ninguna acción disponible (Auditor). */
   readonly isReadOnly = computed(() =>
     !this.canCreate() && !this.canEdit() && !this.canChangeStatus() && !this.canDelete()
