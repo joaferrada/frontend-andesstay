@@ -29,7 +29,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
+/.angular/
 .sass-cache/
 /connect.lock
 /coverage
@@ -44,3 +44,6 @@ Thumbs.db
 # Archivos locales de herramientas
 .claude/
 CLAUDE.md
+
+# Secretos locales
+.env
