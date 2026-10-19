@@ -1,0 +1,117 @@
+<section class="page" aria-labelledby="dashboard-title">
+  <header class="page-header">
+    <div>
+      <h1 id="dashboard-title">Hola, {{ authRoles.userName() || 'bienvenido' }}</h1>
+      <p>Resumen de reservas al {{ today | date: 'd \'de\' MMMM' }}.</p>
+    </div>
+    @if (!hasNoRole()) {
+      <a class="btn btn-primary" routerLink="/reservations">Ver reservas</a>
+    }
+  </header>
+
+  @if (hasNoRole()) {
+    <div class="alert alert-info" role="status">
+      Tu cuenta no tiene un rol asignado en AndesStay. Pide a un administrador que te asigne uno.
+    </div>
+  } @else if (loading()) {
+    <app-loading-spinner label="Cargando panel..." />
+  } @else if (error()) {
+    <div class="alert alert-error dashboard__error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="load()">Reintentar</button>
+    </div>
+  } @else {
+
+    <!-- ADMIN: total y conteo por estado -->
+    @if (isAdmin()) {
+      <section class="card" aria-labelledby="admin-title">
+        <h2 id="admin-title">Estado general de la red</h2>
+        <div class="stats">
+          <div class="stat stat--total">
+            <span class="stat__value">{{ reservations().length }}</span>
+            <span class="stat__label">Reservas totales</span>
+          </div>
+          @for (item of statusCounts(); track item.status) {
+            <div class="stat">
+              <span class="stat__value">{{ item.count }}</span>
+              <app-status-badge [status]="item.status" />
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- OPERADOR: llegadas y salidas de hoy -->
+    @if (isOperador()) {
+      <div class="grid-2">
+        <section class="card" aria-labelledby="arrivals-title">
+          <h2 id="arrivals-title">Llegadas de hoy <span class="count">{{ arrivalsToday().length }}</span></h2>
+          @for (r of arrivalsToday(); track r.id) {
+            <div class="row">
+              <div>
+                <strong>{{ r.alojamientoNombre }}</strong>
+                <span class="muted">{{ r.clienteUsername || 'Huésped' }} · #{{ r.id }}</span>
+              </div>
+              <app-status-badge [status]="r.estado" />
+            </div>
+          } @empty {
+            <app-empty-state title="Sin llegadas hoy" message="No hay reservas que comiencen hoy." />
+          }
+        </section>
+
+        <section class="card" aria-labelledby="departures-title">
+          <h2 id="departures-title">Salidas de hoy <span class="count">{{ departuresToday().length }}</span></h2>
+          @for (r of departuresToday(); track r.id) {
+            <div class="row">
+              <div>
+                <strong>{{ r.alojamientoNombre }}</strong>
+                <span class="muted">{{ r.clienteUsername || 'Huésped' }} · #{{ r.id }}</span>
+              </div>
+              <app-status-badge [status]="r.estado" />
+            </div>
+          } @empty {
+            <app-empty-state title="Sin salidas hoy" message="No hay reservas que terminen hoy." />
+          }
+        </section>
+      </div>
+    }
+
+    <!-- CLIENTE: mis reservas y su estado -->
+    @if (isCliente()) {
+      <section class="card" aria-labelledby="mine-title">
+        <h2 id="mine-title">Mis reservas <span class="count">{{ myReservations().length }}</span></h2>
+        @for (r of myReservations(); track r.id) {
+          <div class="row">
+            <div>
+              <strong>{{ r.alojamientoNombre }}</strong>
+              <span class="muted">{{ r.fechaInicio | date: 'dd-MM-yyyy' }} al {{ r.fechaFin | date: 'dd-MM-yyyy' }}</span>
+            </div>
+            <app-status-badge [status]="r.estado" />
+          </div>
+        } @empty {
+          <app-empty-state title="Aún no tienes reservas" message="Cuando reserves un alojamiento aparecerá aquí.">
+            <a class="btn btn-primary btn-sm" routerLink="/reservations">Crear una reserva</a>
+          </app-empty-state>
+        }
+      </section>
+    }
+
+    <!-- AUDITOR: últimas reservas (solo lectura) -->
+    @if (isAuditor()) {
+      <section class="card" aria-labelledby="latest-title">
+        <h2 id="latest-title">Últimas reservas <span class="muted">(solo lectura)</span></h2>
+        @for (r of latestReservations(); track r.id) {
+          <div class="row">
+            <div>
+              <strong>#{{ r.id }} · {{ r.alojamientoNombre }}</strong>
+              <span class="muted">{{ r.clienteUsername || 'Huésped' }} · {{ r.fechaInicio | date: 'dd-MM-yyyy' }}</span>
+            </div>
+            <app-status-badge [status]="r.estado" />
+          </div>
+        } @empty {
+          <app-empty-state title="Sin reservas registradas" />
+        }
+      </section>
+    }
+  }
+</section>
