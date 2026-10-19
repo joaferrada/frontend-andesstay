@@ -132,6 +132,12 @@ export class ReservationListComponent implements OnInit {
       error: err => {
         console.error('Error al cambiar estado:', err);
         this.busyId.set(null);
+        // Al confirmar se descuenta un cupo de la unidad: 409 = sin cupos
+        if (to === ReservationStatus.Confirmada && err instanceof HttpErrorResponse && err.status === 409) {
+          this.toast.error('No quedan cupos disponibles para esta unidad');
+          this.load();
+          return;
+        }
         this.notifyActionError(err, 'No fue posible cambiar el estado de la reserva.');
       }
     });

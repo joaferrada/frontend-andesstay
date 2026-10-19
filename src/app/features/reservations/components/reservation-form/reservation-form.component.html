@@ -57,21 +57,46 @@
     }
 
     <div class="form-field form__wide">
-      <label for="alojamiento">Alojamiento</label>
-      <input
-        id="alojamiento"
-        type="text"
-        class="form-control"
-        formControlName="alojamientoNombre"
-        placeholder="Ej: Lodge Torres del Paine"
-        autocomplete="off"
-        [class.is-invalid]="showError('alojamientoNombre')"
-        [attr.aria-invalid]="showError('alojamientoNombre')"
-        aria-describedby="alojamiento-error"
-      >
-      @if (showError('alojamientoNombre')) {
-        <p id="alojamiento-error" class="field-error">
-          {{ form.controls.alojamientoNombre.hasError('maxlength') ? 'Máximo 120 caracteres.' : 'Indica el alojamiento.' }}
+      <label for="unidad">Unidad</label>
+      @if (unitsLoading()) {
+        <p class="form__hint" role="status">Cargando unidades disponibles...</p>
+      } @else if (unitsError()) {
+        <div class="alert alert-error form__inline-alert" role="alert">
+          <span>{{ unitsError() }}</span>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="loadUnits()">Reintentar</button>
+        </div>
+      } @else if (units().length === 0) {
+        <p class="form__hint">No hay unidades con cupos disponibles en este momento.</p>
+      } @else {
+        <select
+          id="unidad"
+          class="form-control"
+          formControlName="unidadId"
+          [class.is-invalid]="showError('unidadId')"
+          [attr.aria-invalid]="showError('unidadId')"
+          aria-describedby="unidad-error unidad-detalle"
+        >
+          <option [ngValue]="null" disabled>Selecciona una unidad</option>
+          @for (u of units(); track u.id) {
+            <option [ngValue]="u.id">
+              {{ u.nombre }} · {{ u.hostal }} ({{ typeLabels[u.tipo] }}) — {{ u.cuposDisponibles }} cupos
+            </option>
+          }
+        </select>
+      }
+
+      @if (showError('unidadId')) {
+        <p id="unidad-error" class="field-error">Selecciona una unidad del catálogo.</p>
+      }
+      @if (reservation() && !reservation()!.unidadId) {
+        <p class="form__hint">
+          Esta reserva no tenía una unidad asociada ({{ reservation()!.alojamientoNombre }}). Elige una del catálogo.
+        </p>
+      }
+      @if (selectedUnit(); as u) {
+        <p id="unidad-detalle" class="form__unit">
+          {{ u.ubicacion }} · hasta {{ u.capacidad }} {{ u.capacidad === 1 ? 'persona' : 'personas' }} ·
+          <strong>{{ u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }} por noche</strong>
         </p>
       }
     </div>
@@ -112,7 +137,9 @@
     </div>
 
     <div class="form-field">
-      <label for="precio">Precio total (CLP)</label>
+      <label for="precio">
+        Precio total (CLP){{ authRoles.canEditPrice() ? '' : ' · calculado' }}
+      </label>
       <input
         id="precio"
         type="number"
@@ -121,11 +148,19 @@
         min="1"
         step="1"
         inputmode="numeric"
-        placeholder="Ej: 120000"
         [class.is-invalid]="showError('precioTotal')"
         [attr.aria-invalid]="showError('precioTotal')"
-        aria-describedby="precio-error"
+        aria-describedby="precio-error precio-calculo"
       >
+      @if (selectedUnit(); as u) {
+        @if (nights() > 0) {
+          <p id="precio-calculo" class="form__hint">
+            {{ nights() }} {{ nights() === 1 ? 'noche' : 'noches' }} ×
+            {{ u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }} =
+            {{ nights() * u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}
+          </p>
+        }
+      }
       @if (showError('precioTotal')) {
         <p id="precio-error" class="field-error">El precio debe ser mayor a 0.</p>
       }

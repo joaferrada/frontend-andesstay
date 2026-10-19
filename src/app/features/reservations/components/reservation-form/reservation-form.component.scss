@@ -32,6 +32,25 @@
     }
   }
 
+  &__hint,
+  &__unit {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+  }
+
+  &__unit strong {
+    color: $color-text;
+  }
+
+  &__inline-alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+
   &__booker {
     margin: 0;
     padding: $space-3 $space-4;
