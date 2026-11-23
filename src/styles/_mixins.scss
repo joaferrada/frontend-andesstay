@@ -25,6 +25,51 @@
   padding: $space-5;
 }
 
+@mixin from($breakpoint) {
+  @media (min-width: $breakpoint) {
+    @content;
+  }
+}
+
+/** Animaciones y transiciones solo si el usuario no pidió reducir el movimiento. */
+@mixin motion {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+/** Grilla de tarjetas: 1 columna en móvil, 2 en tablet, 3 en escritorio y $wide en pantallas anchas. */
+@mixin card-grid($wide: 4) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $space-5;
+
+  @include from($breakpoint-sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include from($breakpoint-lg) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @if $wide > 3 {
+    @include from($breakpoint-xl) {
+      grid-template-columns: repeat($wide, minmax(0, 1fr));
+    }
+  }
+}
+
+@mixin chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 2px $space-3;
+  border-radius: $radius-pill;
+  font-size: 0.8125rem;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+}
+
 @mixin visually-hidden {
   position: absolute;
   width: 1px;
