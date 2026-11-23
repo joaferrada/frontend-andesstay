@@ -1,0 +1,62 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+:host {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: $skeleton-base;
+}
+
+:host(.unit-image--fill) {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+.unit-image__img,
+.unit-image__fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.unit-image__img {
+  opacity: 0;
+  transform: scale(var(--unit-image-zoom, 1));
+
+  @include motion {
+    transition: opacity $duration-slow ease, transform 400ms $ease-out;
+  }
+
+  &.is-loaded {
+    opacity: 1;
+  }
+}
+
+.unit-image__skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, $skeleton-base 30%, $skeleton-highlight 50%, $skeleton-base 70%);
+  background-size: 300% 100%;
+
+  @include motion {
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+.unit-image__fallback {
+  .sky { fill: $color-primary-soft; }
+  .sun { fill: $color-accent-soft; }
+  .far { fill: $color-mountain-far; }
+  .snow { fill: $color-mountain-snow; }
+  .near { fill: $color-primary; }
+  .ground { fill: $color-primary-dark; }
+}
