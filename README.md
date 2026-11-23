@@ -34,33 +34,38 @@ El despliegue a GitHub Pages lo realiza el workflow `.github/workflows/deploy.ym
 ```
 src/
 ├── enviroments/                 # configuración de MSAL y del API Gateway (usada por el deploy)
-├── styles/                      # _variables.scss, _mixins.scss, _base.scss
+├── assets/images/               # fotos WebP por tipo de unidad y paisajes (créditos en CREDITOS.md)
+├── styles/                      # _variables.scss, _mixins.scss, _base.scss, _ui.scss (portadas, chips, esqueletos)
 ├── styles.scss                  # punto de entrada de estilos globales
 └── app/
     ├── core/
     │   ├── auth/                # AuthRoleService (matrices de permisos), roleGuard, guards de sesión
     │   ├── interceptors/        # http-error.interceptor (401 → login, 403/503 con texto fijo)
     │   ├── models/              # Reservation, ReservationStatus, UserRole, Unit, AuditEvent, Kpis
-    │   └── services/            # ReservationService, CatalogService, AuditService, ReportService
+    │   ├── services/            # ReservationService, CatalogService, AuditService, ReportService, UnitImageService
+    │   └── utils/               # unitAvailability (Disponible / Últimos cupos / Sin cupos)
     ├── shared/
-    │   ├── components/          # status-badge, empty-state, loading-spinner, confirm-dialog, toast
+    │   ├── components/          # status-badge, empty-state, loading-spinner, confirm-dialog, toast,
+    │   │                        # unit-image (foto con esqueleto y respaldo), unit-card, icon (SVG inline)
     │   └── pipes/               # statusLabel (CHECKIN_PENDIENTE → "Check-in pendiente")
     ├── layout/
     │   ├── shell/               # layout principal: sidebar + header + router-outlet
     │   ├── header/              # usuario conectado, roles como chips, cerrar sesión
     │   └── sidebar/             # menú filtrado por rol, colapsable en móvil
     └── features/
-        ├── auth/login/          # pantalla "Iniciar sesión con Microsoft"
-        ├── dashboard/           # tarjetas por rol con datos reales de reservas
+        ├── auth/login/          # pantalla dividida con foto y "Iniciar sesión con Microsoft"
+        ├── dashboard/           # banner con saludo, accesos por permiso, datos por rol y destacados
         ├── reservations/
-        │   ├── pages/reservation-list/      # tabla + filtro por estado
+        │   ├── pages/reservation-list/      # tabla con miniaturas (tarjetas en móvil) + filtro por estado
         │   ├── pages/reservation-editor/    # crear y editar
         │   └── components/
         │       ├── reservation-form/        # unidad del catálogo, fechas, precio = noches x tarifa
+        │       ├── unit-picker/             # galería de unidades con foto (radios)
+        │       ├── reservation-summary/     # foto, fechas y tarifa x noches = total
         │       ├── reservation-table/
         │       └── status-actions/
         ├── catalog/
-        │   ├── pages/unit-list/             # tarjetas de unidades con filtros
+        │   ├── pages/unit-list/             # grilla de tarjetas con foto, filtros en chips y Reservar
         │   └── components/unit-form/        # crear, editar y dar de baja (Admin)
         ├── audit/
         │   ├── pages/audit-list/            # eventos con filtros y paginación
@@ -71,6 +76,12 @@ src/
 ```
 
 Cada componente tiene sus archivos `.ts`, `.html` y `.scss` en su propia carpeta. Los `.scss` importan los tokens con `@use 'styles/variables' as *;` (ruta configurada en `angular.json` con `stylePreprocessorOptions.includePaths`).
+
+## Imágenes de alojamientos
+
+El backend no maneja imágenes: `UnitImageService` asigna a cada unidad una foto local de su tipo de forma determinista (tipo + id), así la misma unidad siempre muestra la misma foto. Para reservas antiguas que solo tienen `alojamientoNombre`, el tipo se deduce por palabras del nombre (cabaña, domo, lodge, habitación) o se usa un paisaje. `unit-image` carga las fotos en diferido, muestra un esqueleto mientras cargan y una ilustración de montañas si fallan.
+
+Las fotos son de Unsplash (licencia libre); autor y enlace de cada una en `src/assets/images/CREDITOS.md`. Para agregar fotos, súmalas en `src/assets/images/units/<tipo>/` (WebP, ~1200px, menos de 250 KB) y en la lista de `UnitImageService`.
 
 ## Rutas
 
