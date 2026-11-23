@@ -90,7 +90,7 @@
   white-space: nowrap;
 
   &--muted {
-    background: #eceff1;
+    background: $color-muted-bg;
     color: $color-text-muted;
   }
 }

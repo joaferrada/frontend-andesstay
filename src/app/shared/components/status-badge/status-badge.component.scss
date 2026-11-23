@@ -12,7 +12,7 @@
   font-weight: $font-weight-semibold;
   white-space: nowrap;
   color: $color-text-muted;
-  background: #eceff1;
+  background: $color-muted-bg;
 
   &__dot {
     width: 8px;

@@ -15,7 +15,7 @@
   gap: $space-4;
   padding: $space-4 $space-3;
   background: $color-primary-dark;
-  color: #e9f1ee;
+  color: $color-on-dark-muted;
   overflow-y: auto;
 
   @include mobile {
@@ -44,13 +44,13 @@
     padding: $space-2 $space-3;
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;
-    color: #fff;
+    color: $color-on-dark;
   }
 
   &__logo {
     width: 36px;
     height: 22px;
-    fill: #a9c8bc;
+    fill: $color-mountain-far;
   }
 
   &__list {
@@ -73,16 +73,16 @@
     font-weight: $font-weight-semibold;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba($color-on-dark, 0.08);
     }
 
     &:focus-visible {
-      outline-color: #fff;
+      outline-color: $color-on-dark;
     }
 
     &--active {
-      background: rgba(255, 255, 255, 0.16);
-      color: #fff;
+      background: rgba($color-on-dark, 0.16);
+      color: $color-on-dark;
     }
   }
 

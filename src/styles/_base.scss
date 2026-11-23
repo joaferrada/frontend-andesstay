@@ -151,7 +151,7 @@ a {
 
 .btn-danger {
   background: $color-danger;
-  color: #fff;
+  color: $color-on-dark;
 
   &:hover:not(:disabled) {
     background: $color-danger-dark;
