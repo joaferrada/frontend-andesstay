@@ -9,7 +9,7 @@
   color: $color-text;
 
   &::backdrop {
-    background: rgba(31, 42, 46, 0.45);
+    background: $overlay-scrim;
   }
 
   &__title {

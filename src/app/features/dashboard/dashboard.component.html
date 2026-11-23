@@ -1,13 +1,42 @@
 <section class="page" aria-labelledby="dashboard-title">
-  <header class="page-header">
-    <div>
-      <h1 id="dashboard-title">Hola, {{ authRoles.userName() || 'bienvenido' }}</h1>
-      <p>Resumen de reservas al {{ today | date: 'd \'de\' MMMM' }}.</p>
+  <header class="hero-banner dash-hero">
+    <app-unit-image fill priority [src]="hero.src" alt="" />
+    <div class="hero-banner__content">
+      <p class="hero-banner__eyebrow">{{ today | date: 'EEEE d \'de\' MMMM' }}</p>
+      <h1 id="dashboard-title">{{ greeting() }}, {{ firstName() }}</h1>
+      <p>Tu resumen de AndesStay: reservas, alojamientos y lo que pasa hoy en la cordillera.</p>
     </div>
     @if (!hasNoRole()) {
-      <a class="btn btn-primary" routerLink="/reservations">Ver reservas</a>
+      <a class="btn btn-accent btn-lg" routerLink="/reservations">
+        Ver reservas <app-icon name="arrow-right" />
+      </a>
     }
   </header>
+
+  @if (!hasNoRole() && quickLinks().length > 0) {
+    <nav aria-label="Accesos rápidos">
+      <ul class="quick-grid">
+        @for (q of quickLinks(); track q.route) {
+          <li>
+            <a class="quick-card" [routerLink]="q.route">
+              <span class="quick-card__icon"><app-icon [name]="q.icon" /></span>
+              <span class="quick-card__text">
+                <strong>{{ q.title }}</strong>
+                <span>{{ q.description }}</span>
+              </span>
+              @if (q.route === '/reports' && occupancy() !== null) {
+                <span class="quick-card__kpi">
+                  <strong>{{ occupancy() | number: '1.0-1' }}</strong>
+                  <span>ocupación activa (24 h)</span>
+                </span>
+              }
+              <app-icon class="quick-card__go" name="arrow-right" />
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  }
 
   @if (hasNoRole()) {
     <div class="alert alert-info" role="status">
@@ -24,21 +53,6 @@
 
     <!-- ADMIN: total y conteo por estado -->
     @if (isAdmin()) {
-      @if (authRoles.canViewReports()) {
-        <a class="card quick" routerLink="/reports">
-          <span class="quick__text">
-            <strong>Reportería</strong>
-            <span class="muted">Reservas por hora, tiempo de ciclo y unidades más demandadas</span>
-          </span>
-          @if (occupancy() !== null) {
-            <span class="quick__kpi">
-              <span class="quick__value">{{ occupancy() | number: '1.0-1' }}</span>
-              <span class="muted">ocupación activa (24 h)</span>
-            </span>
-          }
-          <span class="quick__go" aria-hidden="true">→</span>
-        </a>
-      }
       <section class="card" aria-labelledby="admin-title">
         <h2 id="admin-title">Estado general de la red</h2>
         <div class="stats">
@@ -130,5 +144,28 @@
         }
       </section>
     }
+  }
+
+  @if (featured().length > 0) {
+    <section aria-labelledby="featured-title">
+      <div class="section-head">
+        <h2 id="featured-title">Alojamientos destacados</h2>
+        <a routerLink="/catalog">Ver todo el catálogo <app-icon name="arrow-right" /></a>
+      </div>
+      <ul class="card-grid">
+        @for (u of featured(); track u.id) {
+          <li>
+            <app-unit-card [unit]="u" [headingLevel]="3">
+              @if (authRoles.canCreate()) {
+                <a ngProjectAs="[cardActions]" class="btn btn-accent btn-sm" routerLink="/reservations/new" [queryParams]="{ unidadId: u.id }">
+                  <app-icon name="calendar-plus" />
+                  Reservar<span class="visually-hidden"> {{ u.nombre }}</span>
+                </a>
+              }
+            </app-unit-card>
+          </li>
+        }
+      </ul>
+    </section>
   }
 </section>

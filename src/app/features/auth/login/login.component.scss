@@ -4,60 +4,119 @@
 .login {
   min-height: 100vh;
   display: grid;
-  place-items: center;
-  padding: $space-4;
-  background:
-    linear-gradient(180deg, rgba($color-primary, 0.92) 0%, rgba($color-primary-dark, 0.96) 100%);
+  grid-template-columns: minmax(0, 1fr);
+  background: $color-sand;
 
-  &__card {
-    @include card;
-    width: min(440px, 100%);
+  @include from($breakpoint-md) {
+    grid-template-columns: minmax(0, 1.25fr) minmax(400px, 1fr);
+  }
+
+  // Foto a pantalla completa con degradado para el texto
+  &__visual {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    min-height: 42vh;
     padding: $space-6;
-    text-align: center;
+    overflow: hidden;
+    color: $color-on-dark;
+    background: $color-primary-dark;
+
+    @include from($breakpoint-md) {
+      min-height: 100vh;
+      padding: $space-7;
+    }
 
     @include small {
       padding: $space-5;
     }
+
+    > app-unit-image {
+      z-index: -2;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: $overlay-bottom;
+    }
+  }
+
+  &__visual-content {
+    max-width: 560px;
   }
 
   &__brand {
     display: inline-flex;
     align-items: center;
     gap: $space-2;
-    margin-bottom: $space-5;
+    margin-bottom: $space-4;
   }
 
   &__logo {
-    width: 48px;
-    height: 30px;
-    fill: $color-primary;
+    width: 52px;
+    height: 32px;
+    fill: $color-mountain-far;
   }
 
   &__snow {
-    fill: $color-sand;
+    fill: $color-mountain-snow;
   }
 
   &__name {
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
-    color: $color-primary;
+  }
+
+  &__tagline {
+    margin: 0 0 $space-2;
+    font-size: clamp(1.5rem, 1rem + 2.2vw, 2.5rem);
+    font-weight: $font-weight-bold;
+    line-height: 1.15;
+  }
+
+  &__sub {
+    margin: 0;
+    color: $color-on-dark-muted;
+    font-size: $font-size-lg;
+  }
+
+  &__panel {
+    display: grid;
+    place-items: center;
+    padding: $space-6 $space-5;
+
+    @include small {
+      padding: $space-5 $space-4;
+    }
+  }
+
+  &__card {
+    width: min(420px, 100%);
+
+    h1 {
+      margin-bottom: $space-3;
+      color: $color-primary-dark;
+    }
   }
 
   &__lead {
     color: $color-text-muted;
+    font-size: $font-size-lg;
   }
 
   &__button {
     width: 100%;
-    min-height: 48px;
     margin-top: $space-4;
-    font-size: $font-size-base;
   }
 
   &__ms {
     width: 18px;
     height: 18px;
-    background: #fff;
+    background: $color-surface;
     padding: 1px;
     border-radius: 2px;
   }

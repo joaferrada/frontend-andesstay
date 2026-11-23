@@ -1,0 +1,32 @@
+<fieldset class="picker" [class.picker--invalid]="invalid()" [attr.aria-describedby]="describedBy()">
+  <legend class="picker__legend">Unidad</legend>
+
+  <ul class="picker__list">
+    @for (u of units(); track u.id) {
+      <li>
+        <label class="pick" [class.pick--selected]="control().value === u.id">
+          <input
+            class="pick__input"
+            type="radio"
+            name="unidadId"
+            [value]="u.id"
+            [formControl]="control()"
+            [attr.aria-invalid]="invalid() || null"
+          >
+          <app-unit-image class="pick__media" ratio="4 / 3" [src]="imageFor(u)" alt="" />
+          <span class="pick__body">
+            <span class="pick__name">{{ u.nombre }}</span>
+            <span class="pick__meta">{{ typeLabel(u) }} · {{ u.hostal }}</span>
+            <span class="pick__price">
+              {{ u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}<span class="pick__per"> / noche</span>
+            </span>
+            <span class="pick__cupos" [class.pick__cupos--low]="isLow(u)">
+              {{ isLow(u) ? 'Últimos cupos: ' : '' }}{{ u.cuposDisponibles }} {{ u.cuposDisponibles === 1 ? 'cupo' : 'cupos' }}
+            </span>
+          </span>
+          <span class="pick__check" aria-hidden="true"><app-icon name="check" /></span>
+        </label>
+      </li>
+    }
+  </ul>
+</fieldset>

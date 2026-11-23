@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../enviroments/enviroment';
+import { SILENT_HTTP_ERRORS } from '../interceptors/http-error.interceptor';
 import { Unit, UnitFilters, UnitPayload } from '../models/unit.model';
 
 @Injectable({
@@ -11,8 +12,11 @@ export class CatalogService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiConfig.uri}/api/catalog/units`;
 
-  /** GET /api/catalog/units?tipo=&hostal=&soloDisponibles= */
-  listarUnidades(filters: UnitFilters = {}): Observable<Unit[]> {
+  /**
+   * GET /api/catalog/units?tipo=&hostal=&soloDisponibles=
+   * Con silent, un error no muestra aviso global (cargas opcionales: miniaturas, destacados).
+   */
+  listarUnidades(filters: UnitFilters = {}, options: { silent?: boolean } = {}): Observable<Unit[]> {
     let params = new HttpParams();
     if (filters.tipo) {
       params = params.set('tipo', filters.tipo);
@@ -23,7 +27,10 @@ export class CatalogService {
     if (filters.soloDisponibles) {
       params = params.set('soloDisponibles', 'true');
     }
-    return this.http.get<Unit[]>(this.apiUrl, { params });
+    return this.http.get<Unit[]>(this.apiUrl, {
+      params,
+      context: new HttpContext().set(SILENT_HTTP_ERRORS, !!options.silent)
+    });
   }
 
   obtenerUnidad(id: number): Observable<Unit> {

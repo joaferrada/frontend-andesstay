@@ -1,0 +1,48 @@
+<aside class="summary" aria-labelledby="summary-title">
+  <div class="summary__media">
+    <app-unit-image [src]="image().src" [alt]="unit() ? image().alt : ''" ratio="16 / 10" />
+    @if (unit()) {
+      <span class="summary__type">{{ typeLabel() }}</span>
+    }
+  </div>
+
+  <div class="summary__body">
+    <h3 id="summary-title" class="summary__title">
+      {{ unit()?.nombre ?? 'Resumen de la reserva' }}
+    </h3>
+
+    @if (unit(); as u) {
+      <p class="summary__meta"><app-icon name="map-pin" /> {{ u.hostal }} · {{ u.ubicacion }}</p>
+      <p class="summary__meta"><app-icon name="users" /> Hasta {{ u.capacidad }} {{ u.capacidad === 1 ? 'persona' : 'personas' }}</p>
+
+      <dl class="summary__dates">
+        <div>
+          <dt>Llegada</dt>
+          <dd>{{ fechaInicio() ? (fechaInicio() | date: 'EEE d MMM y') : '—' }}</dd>
+        </div>
+        <div>
+          <dt>Salida</dt>
+          <dd>{{ fechaFin() ? (fechaFin() | date: 'EEE d MMM y') : '—' }}</dd>
+        </div>
+      </dl>
+
+      @if (nights() > 0) {
+        <div class="summary__calc">
+          <span>
+            {{ u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }} ×
+            {{ nights() }} {{ nights() === 1 ? 'noche' : 'noches' }}
+          </span>
+          <span>{{ subtotal() | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</span>
+        </div>
+        <div class="summary__total" role="status">
+          <span>Total{{ adjusted() ? ' (ajustado)' : '' }}</span>
+          <strong>{{ (adjusted() ? total() : subtotal()) | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</strong>
+        </div>
+      } @else {
+        <p class="summary__hint"><app-icon name="moon" /> Elige las fechas para calcular las noches y el total.</p>
+      }
+    } @else {
+      <p class="summary__hint">Elige una unidad de la galería para ver aquí la foto, las noches y el total.</p>
+    }
+  </div>
+</aside>

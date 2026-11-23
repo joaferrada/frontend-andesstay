@@ -12,6 +12,16 @@ $color-border: #ddd6c8;
 $color-text: #1f2a2e;           // pizarra oscura
 $color-text-muted: #56616a;
 $color-focus: #1f6feb;
+$color-on-dark: #ffffff;         // texto sobre fotos y fondos oscuros
+$color-on-dark-muted: #e9f1ee;
+$color-muted-bg: #eceff1;        // fondo neutro (chips inactivos, badges sin estado)
+$color-accent-dark: #7a4526;     // terracota hover / activo
+$color-mountain-far: #a9c8bc;    // ilustración de respaldo: cordón lejano
+$color-mountain-snow: #fdfbf7;
+
+// Esqueleto de carga (shimmer)
+$skeleton-base: #ece6da;
+$skeleton-highlight: #f8f5ef;
 
 // Feedback
 $color-success: #1e5b3a;
@@ -61,9 +71,25 @@ $radius-lg: 16px;
 $radius-pill: 999px;
 $shadow-sm: 0 1px 2px rgba(31, 42, 46, 0.08);
 $shadow-md: 0 4px 16px rgba(31, 42, 46, 0.12);
+$shadow-lg: 0 14px 36px rgba(31, 42, 46, 0.18);
+$radius-xl: 24px;
+
+// Overlays sobre fotos (texto blanco con contraste AA)
+$overlay-hero: linear-gradient(100deg, rgba(20, 38, 33, 0.88) 0%, rgba(20, 38, 33, 0.66) 50%, rgba(20, 38, 33, 0.2) 100%);
+$overlay-bottom: linear-gradient(180deg, rgba(20, 38, 33, 0.3) 0%, rgba(20, 38, 33, 0.68) 40%, rgba(20, 38, 33, 0.92) 100%);
+$overlay-scrim: rgba(31, 42, 46, 0.45);
+$overlay-badge: rgba(255, 255, 255, 0.94);
+
+// Movimiento (se anula con prefers-reduced-motion)
+$duration-fast: 150ms;
+$duration-base: 200ms;
+$duration-slow: 250ms;
+$ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
 // Layout
 $sidebar-width: 248px;
 $header-height: 64px;
+$card-min-width: 260px;
+$breakpoint-lg: 1100px;
 $breakpoint-md: 900px;
 $breakpoint-sm: 600px;

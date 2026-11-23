@@ -1,18 +1,28 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthRoleService } from '../../../../core/auth/auth-role.service';
 import { CatalogService } from '../../../../core/services/catalog.service';
 import { friendlyHttpMessage } from '../../../../core/interceptors/http-error.interceptor';
 import { ALL_UNIT_TYPES, UNIT_TYPE_LABELS, Unit, UnitType } from '../../../../core/models/unit.model';
-import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { UnitFormComponent } from '../../components/unit-form/unit-form.component';
+import { UnitImageService } from '../../../../core/services/unit-image.service';
+import { UNIT_TYPE_ICONS } from '../../../../core/utils/unit-availability';
+import { UnitCardComponent } from '../../../../shared/components/unit-card/unit-card.component';
+import { UnitImageComponent } from '../../../../shared/components/unit-image/unit-image.component';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-unit-list',
   standalone: true,
-  imports: [CurrencyPipe, FormsModule, LoadingSpinnerComponent, EmptyStateComponent, UnitFormComponent],
+  imports: [
+    RouterLink,
+    EmptyStateComponent,
+    UnitFormComponent,
+    UnitCardComponent,
+    UnitImageComponent,
+    IconComponent
+  ],
   templateUrl: './unit-list.component.html',
   styleUrl: './unit-list.component.scss'
 })
@@ -22,6 +32,10 @@ export class UnitListComponent implements OnInit {
 
   readonly types = ALL_UNIT_TYPES;
   readonly typeLabels = UNIT_TYPE_LABELS;
+  readonly typeIcons = UNIT_TYPE_ICONS;
+  readonly hero = inject(UnitImageService).hero(1);
+  /** Tarjetas de esqueleto mientras carga. */
+  readonly skeletons = [1, 2, 3, 4];
 
   readonly units = signal<Unit[]>([]);
   readonly loading = signal(true);
@@ -107,11 +121,6 @@ export class UnitListComponent implements OnInit {
   onFormDone(): void {
     this.closeForm();
     this.load();
-  }
-
-  /** Texto del tipo; si el backend envía uno desconocido, se muestra tal cual. */
-  typeLabel(tipo: string): string {
-    return UNIT_TYPE_LABELS[tipo as UnitType] ?? tipo;
   }
 
   private rememberHostales(units: Unit[]): void {

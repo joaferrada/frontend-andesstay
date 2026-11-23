@@ -25,6 +25,40 @@
   padding: $space-5;
 }
 
+@mixin from($breakpoint) {
+  @media (min-width: $breakpoint) {
+    @content;
+  }
+}
+
+/** Animaciones y transiciones solo si el usuario no pidió reducir el movimiento. */
+@mixin motion {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+/**
+ * Grilla de tarjetas según el ancho disponible (el sidebar resta espacio en escritorio):
+ * 1 columna en móvil, 2 en tablet y 3–4 en escritorio (contenido de hasta 1200px).
+ */
+@mixin card-grid($min: $card-min-width) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, $min), 1fr));
+  gap: $space-5;
+}
+
+@mixin chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 2px $space-3;
+  border-radius: $radius-pill;
+  font-size: 0.8125rem;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+}
+
 @mixin visually-hidden {
   position: absolute;
   width: 1px;

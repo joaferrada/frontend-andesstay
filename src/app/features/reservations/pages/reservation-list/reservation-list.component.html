@@ -67,6 +67,7 @@
   } @else {
     <app-reservation-table
       [reservations]="filtered()"
+      [units]="unitsById()"
       [canEdit]="authRoles.canEdit()"
       [canViewAudit]="authRoles.canViewAudit()"
       [canChangeStatus]="authRoles.canChangeStatus()"

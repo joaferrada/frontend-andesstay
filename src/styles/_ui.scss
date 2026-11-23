@@ -1,0 +1,216 @@
+// Piezas visuales reutilizables entre pantallas (portadas, filtros, esqueletos, grillas).
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// Portada con foto y overlay degradado (catálogo, panel)
+.hero-banner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $space-4;
+  min-height: 220px;
+  padding: $space-6;
+  overflow: hidden;
+  border-radius: $radius-xl;
+  color: $color-on-dark;
+  background: $color-primary-dark;
+  box-shadow: $shadow-md;
+
+  @include small {
+    min-height: 200px;
+    padding: $space-5;
+    border-radius: $radius-lg;
+  }
+
+  > app-unit-image {
+    z-index: -2;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: $overlay-hero;
+  }
+
+  &__content {
+    max-width: 640px;
+
+    h1 {
+      margin: 0 0 $space-2;
+      font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+    }
+
+    p {
+      margin: 0;
+      color: $color-on-dark-muted;
+      font-size: $font-size-lg;
+    }
+  }
+
+  &__eyebrow {
+    margin-bottom: $space-2 !important;
+    font-size: $font-size-sm !important;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  :focus-visible {
+    outline-color: $color-on-dark;
+  }
+}
+
+// Grilla de tarjetas
+.card-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  @include card-grid;
+}
+
+// Filtros tipo chip y control segmentado (botones con aria-pressed)
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: $space-1;
+  padding: $space-1;
+  border: 1px solid $color-border;
+  border-radius: $radius-pill;
+  background: $color-surface;
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    min-height: 36px;
+    padding: $space-1 $space-4;
+    border: 0;
+    border-radius: $radius-pill;
+    background: transparent;
+    color: $color-text;
+    font: inherit;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: background-color $duration-fast ease, color $duration-fast ease;
+
+    &:hover {
+      background: $color-primary-soft;
+    }
+
+    &[aria-pressed='true'] {
+      background: $color-primary;
+      color: $color-on-dark;
+    }
+  }
+}
+
+.chip-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  min-height: 36px;
+  padding: $space-1 $space-4;
+  border: 1px solid $color-border;
+  border-radius: $radius-pill;
+  background: $color-surface;
+  color: $color-text;
+  font: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color $duration-fast ease, border-color $duration-fast ease, color $duration-fast ease;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  &[aria-pressed='true'] {
+    background: $color-primary-soft;
+    border-color: $color-primary;
+    color: $color-primary-dark;
+  }
+
+  // El check solo se ve cuando está activo
+  &--toggle app-icon {
+    display: none;
+  }
+
+  &--toggle[aria-pressed='true'] app-icon {
+    display: inline-flex;
+  }
+}
+
+// Esqueleto de tarjeta mientras carga
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  padding-bottom: $space-4;
+  overflow: hidden;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  background: $color-surface;
+
+  &__media,
+  &__line {
+    display: block;
+    background: linear-gradient(100deg, $skeleton-base 30%, $skeleton-highlight 50%, $skeleton-base 70%);
+    background-size: 300% 100%;
+
+    @include motion {
+      animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    }
+  }
+
+  &__media {
+    aspect-ratio: 3 / 2;
+  }
+
+  &__line {
+    height: 14px;
+    margin: 0 $space-4;
+    border-radius: $radius-sm;
+
+    &--short {
+      width: 50%;
+    }
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+// Encabezado de sección con enlace a la derecha
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $space-2;
+  margin-bottom: $space-4;
+
+  h2 {
+    margin: 0;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1;
+    font-weight: $font-weight-semibold;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

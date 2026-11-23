@@ -6,6 +6,8 @@ import { AuthRoleService } from '../../../../core/auth/auth-role.service';
 import { ReservationService } from '../../../../core/services/reservation.service';
 import { friendlyHttpMessage, isGloballyHandled } from '../../../../core/interceptors/http-error.interceptor';
 import { Reservation } from '../../../../core/models/reservation.model';
+import { Unit } from '../../../../core/models/unit.model';
+import { CatalogService } from '../../../../core/services/catalog.service';
 import { ALL_STATUSES, ReservationStatus } from '../../../../core/models/reservation-status.enum';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { StatusLabelPipe } from '../../../../shared/pipes/status-label.pipe';
@@ -41,6 +43,7 @@ export class ReservationListComponent implements OnInit {
   // Permisos centralizados en AuthRoleService (Auditor: solo lectura)
   readonly authRoles = inject(AuthRoleService);
   private readonly toast = inject(ToastService);
+  private readonly catalogService = inject(CatalogService);
 
   readonly statuses = ALL_STATUSES;
 
@@ -72,8 +75,20 @@ export class ReservationListComponent implements OnInit {
       : `La reserva #${r.id} de ${r.alojamientoNombre} quedará cancelada.`;
   });
 
+  /** Unidades del catálogo por id, solo para las miniaturas. */
+  readonly unitsById = signal<ReadonlyMap<number, Unit>>(new Map());
+
   ngOnInit(): void {
     this.load();
+    this.loadUnits();
+  }
+
+  /** Opcional: si el catálogo no responde, las miniaturas se deducen por el nombre del alojamiento. */
+  private loadUnits(): void {
+    this.catalogService.listarUnidades({}, { silent: true }).subscribe({
+      next: units => this.unitsById.set(new Map((units ?? []).map(u => [u.id, u]))),
+      error: err => console.warn('Catálogo no disponible para las miniaturas:', err)
+    });
   }
 
   load(): void {

@@ -14,6 +14,7 @@
     </p>
   }
 
+  <div class="form__layout">
   <div class="form__grid">
     @if (registersGuest()) {
       <div class="form-field">
@@ -57,46 +58,37 @@
     }
 
     <div class="form-field form__wide">
-      <label for="unidad">Unidad</label>
       @if (unitsLoading()) {
+        <span class="form__label">Unidad</span>
         <p class="form__hint" role="status">Cargando unidades disponibles...</p>
       } @else if (unitsError()) {
+        <span class="form__label">Unidad</span>
         <div class="alert alert-error form__inline-alert" role="alert">
           <span>{{ unitsError() }}</span>
           <button type="button" class="btn btn-secondary btn-sm" (click)="loadUnits()">Reintentar</button>
         </div>
       } @else if (units().length === 0) {
+        <span class="form__label">Unidad</span>
         <p class="form__hint">No hay unidades con cupos disponibles en este momento.</p>
       } @else {
-        <select
-          id="unidad"
-          class="form-control"
-          formControlName="unidadId"
-          [class.is-invalid]="showError('unidadId')"
-          [attr.aria-invalid]="showError('unidadId')"
-          aria-describedby="unidad-error unidad-detalle"
-        >
-          <option [ngValue]="null" disabled>Selecciona una unidad</option>
-          @for (u of units(); track u.id) {
-            <option [ngValue]="u.id">
-              {{ u.nombre }} · {{ u.hostal }} ({{ typeLabels[u.tipo] }}) — {{ u.cuposDisponibles }} cupos
-            </option>
-          }
-        </select>
+        <app-unit-picker
+          [units]="units()"
+          [control]="form.controls.unidadId"
+          [invalid]="showError('unidadId')"
+          describedBy="unidad-error unidad-aviso"
+        />
       }
 
       @if (showError('unidadId')) {
         <p id="unidad-error" class="field-error">Selecciona una unidad del catálogo.</p>
       }
       @if (reservation() && !reservation()!.unidadId) {
-        <p class="form__hint">
+        <p id="unidad-aviso" class="form__hint">
           Esta reserva no tenía una unidad asociada ({{ reservation()!.alojamientoNombre }}). Elige una del catálogo.
         </p>
-      }
-      @if (selectedUnit(); as u) {
-        <p id="unidad-detalle" class="form__unit">
-          {{ u.ubicacion }} · hasta {{ u.capacidad }} {{ u.capacidad === 1 ? 'persona' : 'personas' }} ·
-          <strong>{{ u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }} por noche</strong>
+      } @else if (preselectedUnavailable()) {
+        <p id="unidad-aviso" class="form__hint">
+          La unidad que elegiste en el catálogo ya no tiene cupos. Elige otra de la galería.
         </p>
       }
     </div>
@@ -165,6 +157,17 @@
         <p id="precio-error" class="field-error">El precio debe ser mayor a 0.</p>
       }
     </div>
+  </div>
+
+  <div class="form__aside">
+    <app-reservation-summary
+      [unit]="selectedUnit()"
+      [nights]="nights()"
+      [fechaInicio]="form.controls.fechaInicio.value"
+      [fechaFin]="form.controls.fechaFin.value"
+      [total]="form.controls.precioTotal.value"
+    />
+  </div>
   </div>
 
   <div class="form__actions">

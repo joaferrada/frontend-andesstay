@@ -1,0 +1,27 @@
+@if (state() !== 'error') {
+  <img
+    class="unit-image__img"
+    [class.is-loaded]="state() === 'loaded'"
+    [src]="src()"
+    [alt]="alt()"
+    width="1200"
+    height="800"
+    decoding="async"
+    [attr.loading]="priority() ? 'eager' : 'lazy'"
+    [attr.fetchpriority]="priority() ? 'high' : null"
+    (load)="onLoad()"
+    (error)="onError()"
+  >
+  @if (state() === 'loading') {
+    <span class="unit-image__skeleton" aria-hidden="true"></span>
+  }
+} @else {
+  <svg class="unit-image__fallback" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" [attr.role]="alt() ? 'img' : null" [attr.aria-label]="alt() || null" [attr.aria-hidden]="alt() ? null : 'true'">
+    <rect class="sky" width="300" height="200" />
+    <circle class="sun" cx="222" cy="58" r="18" />
+    <path class="far" d="M0 140 60 82l38 34 52-58 50 48 34-26 66 60v60H0z" />
+    <path class="snow" d="m150 58 18 19-9-3-9 8-8-7-10 4zM60 82l13 12-7-1-6 5-6-4-8 1z" />
+    <path class="near" d="M0 168 48 128l42 26 58-44 56 40 42-24 54 36v38H0z" />
+    <path class="ground" d="M0 184c60-10 120-12 180-6s90 4 120-2v24H0z" />
+  </svg>
+}
