@@ -38,25 +38,14 @@
   }
 }
 
-/** Grilla de tarjetas: 1 columna en móvil, 2 en tablet, 3 en escritorio y $wide en pantallas anchas. */
-@mixin card-grid($wide: 4) {
+/**
+ * Grilla de tarjetas según el ancho disponible (el sidebar resta espacio en escritorio):
+ * 1 columna en móvil, 2 en tablet y 3–4 en escritorio (contenido de hasta 1200px).
+ */
+@mixin card-grid($min: $card-min-width) {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, $min), 1fr));
   gap: $space-5;
-
-  @include from($breakpoint-sm) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @include from($breakpoint-lg) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  @if $wide > 3 {
-    @include from($breakpoint-xl) {
-      grid-template-columns: repeat($wide, minmax(0, 1fr));
-    }
-  }
 }
 
 @mixin chip {
