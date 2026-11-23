@@ -1,4 +1,5 @@
-<div class="table-wrapper">
+<!-- Escritorio y tablet: tabla -->
+<div class="table-wrapper res-table">
   <table class="table">
     <caption class="visually-hidden">Listado de reservas</caption>
     <thead>
@@ -20,54 +21,21 @@
         <tr>
           <td>#{{ r.id }}</td>
           <td>
-            @if (r.huespedNombre || r.huespedEmail) {
-              <span class="guest">
-                <span class="strong">{{ r.huespedNombre || '—' }}</span>
-                @if (r.huespedEmail) {
-                  <span class="guest__email">{{ r.huespedEmail }}</span>
-                }
-              </span>
-            } @else {
-              <!-- Reservas creadas antes de registrar los datos del huésped -->
-              {{ r.clienteUsername || '—' }}
-            }
+            <ng-container [ngTemplateOutlet]="guest" [ngTemplateOutletContext]="{ $implicit: r }" />
           </td>
-          <td class="strong">{{ r.alojamientoNombre }}</td>
+          <td>
+            <span class="lodging">
+              <app-unit-image class="lodging__thumb" ratio="1 / 1" [src]="thumb(r).src" alt="" />
+              <span class="strong">{{ r.alojamientoNombre }}</span>
+            </span>
+          </td>
           <td class="nowrap">{{ r.fechaInicio | date: 'dd-MM-yyyy' }}</td>
           <td class="nowrap">{{ r.fechaFin | date: 'dd-MM-yyyy' }}</td>
           <td class="num nowrap">{{ r.precioTotal | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</td>
           <td><app-status-badge [status]="r.estado" /></td>
           @if (hasActions()) {
             <td>
-              <div class="row-actions">
-                @if (canViewAudit()) {
-                  <a class="btn btn-secondary btn-sm" routerLink="/audit" [queryParams]="{ reservationId: r.id }">
-                    Ver trazabilidad<span class="visually-hidden"> de la reserva #{{ r.id }}</span>
-                  </a>
-                }
-                @if (canEdit()) {
-                  <a class="btn btn-secondary btn-sm" [routerLink]="['/reservations', r.id, 'edit']">
-                    Editar<span class="visually-hidden"> reserva #{{ r.id }}</span>
-                  </a>
-                }
-                @if (canChangeStatus()) {
-                  <app-status-actions
-                    [status]="r.estado"
-                    [disabled]="busyId() === r.id"
-                    (transition)="statusChange.emit({ reservation: r, to: $event })"
-                  />
-                }
-                @if (canDelete()) {
-                  <button
-                    type="button"
-                    class="btn btn-danger btn-sm"
-                    [disabled]="busyId() === r.id"
-                    (click)="remove.emit(r)"
-                  >
-                    Eliminar
-                  </button>
-                }
-              </div>
+              <ng-container [ngTemplateOutlet]="actions" [ngTemplateOutletContext]="{ $implicit: r }" />
             </td>
           }
         </tr>
@@ -75,3 +43,83 @@
     </tbody>
   </table>
 </div>
+
+<!-- Móvil: tarjetas -->
+<ul class="res-cards" aria-label="Listado de reservas">
+  @for (r of reservations(); track r.id) {
+    <li class="res-card">
+      <app-unit-image class="res-card__media" ratio="16 / 9" [src]="thumb(r).src" [alt]="thumb(r).alt" />
+      <div class="res-card__body">
+        <div class="res-card__head">
+          <h2 class="res-card__title">{{ r.alojamientoNombre }}</h2>
+          <app-status-badge [status]="r.estado" />
+        </div>
+        <p class="res-card__id">Reserva #{{ r.id }}</p>
+        <ng-container [ngTemplateOutlet]="guest" [ngTemplateOutletContext]="{ $implicit: r }" />
+        <dl class="res-card__facts">
+          <div>
+            <dt>Llegada</dt>
+            <dd>{{ r.fechaInicio | date: 'dd-MM-yyyy' }}</dd>
+          </div>
+          <div>
+            <dt>Salida</dt>
+            <dd>{{ r.fechaFin | date: 'dd-MM-yyyy' }}</dd>
+          </div>
+          <div>
+            <dt>Total</dt>
+            <dd>{{ r.precioTotal | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</dd>
+          </div>
+        </dl>
+        @if (hasActions()) {
+          <ng-container [ngTemplateOutlet]="actions" [ngTemplateOutletContext]="{ $implicit: r }" />
+        }
+      </div>
+    </li>
+  }
+</ul>
+
+<ng-template #guest let-r>
+  @if (r.huespedNombre || r.huespedEmail) {
+    <span class="guest">
+      <span class="strong">{{ r.huespedNombre || '—' }}</span>
+      @if (r.huespedEmail) {
+        <span class="guest__email">{{ r.huespedEmail }}</span>
+      }
+    </span>
+  } @else {
+    <!-- Reservas creadas antes de registrar los datos del huésped -->
+    <span class="guest">{{ r.clienteUsername || '—' }}</span>
+  }
+</ng-template>
+
+<ng-template #actions let-r>
+  <div class="row-actions">
+    @if (canViewAudit()) {
+      <a class="btn btn-secondary btn-sm" routerLink="/audit" [queryParams]="{ reservationId: r.id }">
+        Ver trazabilidad<span class="visually-hidden"> de la reserva #{{ r.id }}</span>
+      </a>
+    }
+    @if (canEdit()) {
+      <a class="btn btn-secondary btn-sm" [routerLink]="['/reservations', r.id, 'edit']">
+        Editar<span class="visually-hidden"> reserva #{{ r.id }}</span>
+      </a>
+    }
+    @if (canChangeStatus()) {
+      <app-status-actions
+        [status]="r.estado"
+        [disabled]="busyId() === r.id"
+        (transition)="statusChange.emit({ reservation: r, to: $event })"
+      />
+    }
+    @if (canDelete()) {
+      <button
+        type="button"
+        class="btn btn-danger btn-sm"
+        [disabled]="busyId() === r.id"
+        (click)="remove.emit(r)"
+      >
+        Eliminar<span class="visually-hidden"> reserva #{{ r.id }}</span>
+      </button>
+    }
+  </div>
+</ng-template>
