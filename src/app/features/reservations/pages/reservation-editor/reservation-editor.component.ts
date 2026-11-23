@@ -26,11 +26,16 @@ export class ReservationEditorComponent implements OnInit {
   readonly loading = signal(false);
   readonly notFound = signal(false);
   readonly error = signal<string | null>(null);
+  /** ?unidadId= desde el botón «Reservar» del catálogo. */
+  readonly preselectedUnitId = signal<number | null>(null);
 
   ngOnInit(): void {
     const param = this.route.snapshot.paramMap.get('id');
     if (param === null) {
-      return; // modo creación
+      // modo creación
+      const unidadId = Number(this.route.snapshot.queryParamMap.get('unidadId'));
+      this.preselectedUnitId.set(Number.isInteger(unidadId) && unidadId > 0 ? unidadId : null);
+      return;
     }
 
     const id = Number(param);

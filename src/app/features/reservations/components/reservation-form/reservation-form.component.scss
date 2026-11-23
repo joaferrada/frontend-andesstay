@@ -32,15 +32,34 @@
     }
   }
 
-  &__hint,
-  &__unit {
+  // Campos a la izquierda y resumen fijo a la derecha en escritorio
+  &__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: $space-5;
+
+    @include from($breakpoint-lg) {
+      grid-template-columns: minmax(0, 1fr) 320px;
+      align-items: start;
+    }
+  }
+
+  &__aside {
+    @include from($breakpoint-lg) {
+      position: sticky;
+      top: $space-4;
+    }
+  }
+
+  &__label {
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-sm;
+  }
+
+  &__hint {
     margin: 0;
     font-size: $font-size-sm;
     color: $color-text-muted;
-  }
-
-  &__unit strong {
-    color: $color-text;
   }
 
   &__inline-alert {

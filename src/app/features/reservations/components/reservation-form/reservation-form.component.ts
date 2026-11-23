@@ -12,10 +12,12 @@ import {
 import { ReservationService } from '../../../../core/services/reservation.service';
 import { AuthRoleService } from '../../../../core/auth/auth-role.service';
 import { CatalogService } from '../../../../core/services/catalog.service';
-import { UNIT_TYPE_LABELS, Unit } from '../../../../core/models/unit.model';
+import { Unit } from '../../../../core/models/unit.model';
 import { Reservation } from '../../../../core/models/reservation.model';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { friendlyHttpMessage } from '../../../../core/interceptors/http-error.interceptor';
+import { UnitPickerComponent } from '../unit-picker/unit-picker.component';
+import { ReservationSummaryComponent } from '../reservation-summary/reservation-summary.component';
 
 const positiveNumber: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const value = control.value;
@@ -55,7 +57,7 @@ type FormField = 'unidadId' |'fechaInicio' | 'fechaFin' | 'precioTotal' | 'huesp
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe, UnitPickerComponent, ReservationSummaryComponent],
   templateUrl: './reservation-form.component.html',
   styleUrl: './reservation-form.component.scss'
 })
@@ -84,7 +86,11 @@ export class ReservationFormComponent implements OnInit {
   readonly units = signal<Unit[]>([]);
   readonly unitsLoading = signal(true);
   readonly unitsError = signal<string | null>(null);
-  readonly typeLabels = UNIT_TYPE_LABELS;
+
+  /** Unidad elegida desde el catálogo (?unidadId=); solo se aplica al crear. */
+  readonly preselectedUnitId = input<number | null>(null);
+  /** La unidad preseleccionada ya no está disponible (sin cupos o inactiva). */
+  readonly preselectedUnavailable = signal(false);
 
   /** Unidad elegida y noches según las fechas; se actualizan con cada cambio del formulario. */
   readonly selectedUnit = signal<Unit | null>(null);
@@ -153,6 +159,7 @@ export class ReservationFormComponent implements OnInit {
         this.units.set(available);
         this.unitsLoading.set(false);
         this.includeCurrentUnit();
+        this.applyPreselection();
         this.syncDerived();
       },
       error: err => {
@@ -176,6 +183,21 @@ export class ReservationFormComponent implements OnInit {
       },
       error: err => console.error('No fue posible cargar la unidad de la reserva:', err)
     });
+  }
+
+  /** Marca la unidad que viene del catálogo, si sigue disponible y aún no se eligió otra. */
+  private applyPreselection(): void {
+    const id = this.preselectedUnitId();
+    const control = this.form.controls.unidadId;
+    if (this.reservation() || !id || control.value !== null) {
+      return;
+    }
+    if (this.units().some(u => u.id === id)) {
+      // Emite valueChanges: recalcula noches y precio como si se eligiera a mano
+      control.setValue(id);
+    } else {
+      this.preselectedUnavailable.set(true);
+    }
   }
 
   private onFormChange(): void {
