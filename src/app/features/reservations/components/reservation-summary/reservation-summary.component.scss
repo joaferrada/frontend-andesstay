@@ -1,0 +1,95 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.summary {
+  overflow: hidden;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  background: $color-sand;
+
+  &__media {
+    position: relative;
+  }
+
+  &__type {
+    @include chip;
+    position: absolute;
+    left: $space-3;
+    bottom: $space-3;
+    background: $overlay-badge;
+    color: $color-primary-dark;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    padding: $space-4;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: $font-size-lg;
+  }
+
+  &__meta,
+  &__hint {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-2;
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+
+    app-icon {
+      margin-top: 2px;
+      color: $color-accent;
+    }
+  }
+
+  &__dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-2;
+    margin: $space-2 0 0;
+    padding: $space-3;
+    border-radius: $radius-md;
+    background: $color-surface;
+
+    dt {
+      font-size: 0.75rem;
+      color: $color-text-muted;
+    }
+
+    dd {
+      margin: 0;
+      font-weight: $font-weight-semibold;
+      text-transform: capitalize;
+    }
+  }
+
+  &__calc,
+  &__total {
+    display: flex;
+    justify-content: space-between;
+    gap: $space-2;
+  }
+
+  &__calc {
+    margin-top: $space-2;
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+  }
+
+  &__total {
+    align-items: baseline;
+    padding-top: $space-2;
+    border-top: 1px solid $color-border;
+    font-weight: $font-weight-semibold;
+
+    strong {
+      font-size: $font-size-xl;
+      color: $color-primary-dark;
+    }
+  }
+}

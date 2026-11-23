@@ -1,0 +1,119 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+.picker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  &__legend {
+    margin-bottom: $space-2;
+    padding: 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: $space-3;
+    max-height: 560px;
+    margin: 0;
+    padding: $space-1;
+    overflow-y: auto;
+    list-style: none;
+  }
+
+  &--invalid .pick {
+    border-color: $color-danger;
+  }
+}
+
+.pick {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 2px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  cursor: pointer;
+  transition: border-color $duration-fast ease, box-shadow $duration-fast ease;
+
+  &:hover {
+    border-color: $color-primary;
+    --unit-image-zoom: 1.04;
+  }
+
+  // El radio queda oculto visualmente pero sigue siendo el control con foco
+  &__input {
+    @include visually-hidden;
+  }
+
+  &:has(.pick__input:focus-visible) {
+    @include focus-ring;
+  }
+
+  &--selected {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px $color-primary-soft;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: $space-2 $space-3 $space-3;
+  }
+
+  &__name {
+    font-weight: $font-weight-bold;
+    line-height: 1.3;
+  }
+
+  &__meta,
+  &__cupos {
+    font-size: 0.8125rem;
+    color: $color-text-muted;
+  }
+
+  &__cupos--low {
+    color: $color-warning;
+    font-weight: $font-weight-semibold;
+  }
+
+  &__price {
+    margin-top: $space-1;
+    font-weight: $font-weight-bold;
+    color: $color-primary-dark;
+  }
+
+  &__per {
+    font-weight: $font-weight-regular;
+    color: $color-text-muted;
+    font-size: 0.8125rem;
+  }
+
+  &__check {
+    position: absolute;
+    top: $space-2;
+    right: $space-2;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: $color-primary;
+    color: $color-on-dark;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity $duration-fast ease, transform $duration-base $ease-out;
+  }
+
+  &--selected .pick__check {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
