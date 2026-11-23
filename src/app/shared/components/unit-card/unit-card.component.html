@@ -1,0 +1,50 @@
+@let u = unit();
+@let a = availability();
+
+<article class="card-unit" [class.card-unit--inactive]="a.level === 'inactive'">
+  <div class="card-unit__media">
+    <app-unit-image [src]="image().src" [alt]="image().alt" />
+    <span class="card-unit__type">
+      <app-icon [name]="typeIcon()" />
+      {{ typeLabel() }}
+    </span>
+  </div>
+
+  <div class="card-unit__body">
+    @if (headingLevel() === 2) {
+      <h2 class="card-unit__name">{{ u.nombre }}</h2>
+    } @else {
+      <h3 class="card-unit__name">{{ u.nombre }}</h3>
+    }
+
+    <p class="card-unit__meta">
+      <app-icon name="map-pin" />
+      <span>{{ u.hostal }} · {{ u.ubicacion }}</span>
+    </p>
+    <p class="card-unit__meta">
+      <app-icon name="users" />
+      <span>Hasta {{ u.capacidad }} {{ u.capacidad === 1 ? 'persona' : 'personas' }}</span>
+    </p>
+
+    <p class="card-unit__price">
+      <span class="card-unit__amount">{{ u.tarifaNoche | currency: 'CLP' : 'symbol-narrow' : '1.0-0' }}</span>
+      <span class="card-unit__per">por noche</span>
+    </p>
+
+    <div class="avail" [class]="'avail avail--' + a.level">
+      <div class="avail__row">
+        <span class="avail__chip">{{ a.label }}</span>
+        @if (a.level !== 'inactive') {
+          <span class="avail__count">{{ u.cuposDisponibles }} de {{ u.cuposTotales }} cupos</span>
+        }
+      </div>
+      @if (a.level !== 'inactive') {
+        <span class="avail__bar" aria-hidden="true"><span [style.width.%]="a.percent"></span></span>
+      }
+    </div>
+  </div>
+
+  <div class="card-unit__actions">
+    <ng-content select="[cardActions]" />
+  </div>
+</article>

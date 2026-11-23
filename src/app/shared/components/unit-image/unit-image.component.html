@@ -16,7 +16,7 @@
     <span class="unit-image__skeleton" aria-hidden="true"></span>
   }
 } @else {
-  <svg class="unit-image__fallback" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" role="img" [attr.aria-label]="alt()">
+  <svg class="unit-image__fallback" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" [attr.role]="alt() ? 'img' : null" [attr.aria-label]="alt() || null" [attr.aria-hidden]="alt() ? null : 'true'">
     <rect class="sky" width="300" height="200" />
     <circle class="sun" cx="222" cy="58" r="18" />
     <path class="far" d="M0 140 60 82l38 34 52-58 50 48 34-26 66 60v60H0z" />

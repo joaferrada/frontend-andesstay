@@ -1,0 +1,154 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.card-unit {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @include motion {
+    transition: transform $duration-base $ease-out, box-shadow $duration-base $ease-out;
+  }
+
+  &:hover,
+  &:focus-within {
+    box-shadow: $shadow-lg;
+    --unit-image-zoom: 1.05;
+
+    @include motion {
+      transform: translateY(-3px);
+    }
+  }
+
+  &--inactive {
+    background: $color-sand;
+
+    .card-unit__media {
+      filter: grayscale(0.7);
+    }
+  }
+
+  &__media {
+    position: relative;
+  }
+
+  &__type {
+    @include chip;
+    position: absolute;
+    top: $space-3;
+    left: $space-3;
+    background: $overlay-badge;
+    color: $color-primary-dark;
+    box-shadow: $shadow-sm;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    flex: 1;
+    padding: $space-4 $space-4 $space-3;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: $font-size-lg;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-2;
+    margin: 0;
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+
+    app-icon {
+      margin-top: 2px;
+      color: $color-accent;
+    }
+  }
+
+  &__price {
+    display: flex;
+    align-items: baseline;
+    gap: $space-2;
+    margin: $space-2 0 0;
+  }
+
+  &__amount {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $color-primary-dark;
+    line-height: 1.1;
+  }
+
+  &__per {
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-2;
+    padding: 0 $space-4 $space-4;
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+.avail {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  margin-top: auto;
+  padding-top: $space-2;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-2;
+  }
+
+  &__chip {
+    @include chip;
+  }
+
+  &__count {
+    font-size: 0.8125rem;
+    color: $color-text-muted;
+  }
+
+  &__bar {
+    height: 6px;
+    border-radius: $radius-pill;
+    background: $color-muted-bg;
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: currentColor;
+    }
+  }
+
+  &--ok { color: $color-success; .avail__chip { background: $color-success-bg; } }
+  &--low { color: $color-warning; .avail__chip { background: $color-warning-bg; } }
+  &--none { color: $color-danger; .avail__chip { background: $color-danger-bg; } }
+  &--inactive { color: $color-text-muted; .avail__chip { background: $color-muted-bg; } }
+}
